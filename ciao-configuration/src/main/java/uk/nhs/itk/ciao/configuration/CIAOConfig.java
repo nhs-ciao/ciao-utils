@@ -54,7 +54,7 @@ public class CIAOConfig {
 			} else {
 				EtcdPropertyStore etcd = new EtcdPropertyStore(etcdURL);
 				try {
-					if (etcd.storeExists(cipName + "/" + version)) {
+					if (etcd.storeExists(cipName, version)) {
 						logger.debug("Found etcd config at URL: " + etcdURL);
 						
 					}

@@ -13,10 +13,20 @@
 */
 package uk.nhs.itk.ciao.configuration.impl;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
+import java.util.Map.Entry;
+
+import mousio.etcd4j.EtcdClient;
+import mousio.etcd4j.responses.EtcdException;
+import mousio.etcd4j.responses.EtcdKeysResponse;
+import mousio.etcd4j.responses.EtcdKeysResponse.EtcdNode;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,48 +37,64 @@ import org.slf4j.LoggerFactory;
  */
 public class FilePropertyStore {
 	
-	private static final String CONFIG_FILE = "config.properties";
-    private static Properties defaultProperties;
-    private static Logger logger = LoggerFactory.getLogger(FilePropertyStore.class);
-    
-    static {
-    	initialise();
-    }
+	private static final String CIAO_PREFIX = ".ciao";
+	private static final String EXISTENCE_KEY = "configured";
+	
+	private HashMap<String, String> configValues = null;
+	private String filePath = null;
+	
+	private static Logger logger = LoggerFactory.getLogger(FilePropertyStore.class);
+	
+	public FilePropertyStore(String path) {
+		if (path != null) {
+			this.filePath = path;
+		} else {
+			// Use a default path in the user's home directory under $home/.ciao/
+			String home = System.getProperty("user.home").replace('\\', '/');
+			StringBuffer defaultPath = new StringBuffer();
+			defaultPath.append(home).append('/').append(CIAO_PREFIX);
+			this.filePath = defaultPath.toString();
+		}
+	}
+	
+	public boolean storeExists(String cip_name, String version) throws Exception {
+		boolean exists = false;
+		Properties defaultProperties = new Properties();
+		StringBuffer configFileName = new StringBuffer();
+		configFileName.append(this.filePath).append('/').append(cip_name).append("-").append(version).append(".properties");
+		defaultProperties.load(new FileInputStream(new File(configFileName.toString())));
+		if (defaultProperties.containsKey(EXISTENCE_KEY)) {
+			exists = true;
+		}
+		return exists;
+	}
 
-    /**
-     * This loads the config into memory
-     */
-    private static void initialise() {
-    	if (defaultProperties == null) {
-	    	defaultProperties = new Properties();
-    	}
+	public void setDefaults(String cip_name, String version, Properties defaultConfig) throws Exception {
+		// First, check the properties have not already been set
+		if (storeExists(cip_name, version)) {
+			throw new Exception("The properties file has already been created for this CIP version");
+		}
+		
+	}
 
-    	InputStream in = null;
-        
-        try {
-        	in = FilePropertyStore.class.getClassLoader().getResourceAsStream(CONFIG_FILE);
-            if (in != null) {
-            	defaultProperties.load(in);
-            	in.close();
-            }
-        } catch (Exception ex) {
-       		logger.info("Config file not found: " + CONFIG_FILE, ex);
-        } finally {
-            try {
-                if (in != null) {
-                	in.close();
-                }
-            } catch (IOException ex) {
-            }
-        }
-    }
-    
-    /**
-     * Retrieve the value of the property with the specified name
-     * @param propertyName Name of property to retrieve
-     * @return Value of property
-     */
-    public static String getProperty(String propertyName) {
-    	return defaultProperties.getProperty(propertyName);
-    }
+	public String getConfigValue(String key) throws Exception {
+		if (this.configValues == null) {
+			throw new Exception("The configuration for this CIP has not been initialised");
+		}
+		if (!this.configValues.containsKey(key)) {
+			logger.info("Key not found: {}", key);
+		}
+		logger.info("Values: {}", this.configValues);
+		return this.configValues.get(key);
+	}
+
+	public void loadConfig(String cip_name, String version) throws Exception {
+		// TODO Auto-generated method stub
+		if (this.configValues == null) {
+			this.configValues = new HashMap<String, String>();
+			
+			
+		}
+	}
+	
 }
