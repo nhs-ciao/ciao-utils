@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
 
 public class EtcdPropertyStoreTest {
 
-	private static final String CIPNAME = "ciao-configuration-test";
+	public static final String CIPNAME = "ciao-configuration-test";
 	//private static final String ETCDURL = "http://104.155.27.125:80";
-	private static final String ETCDURL = "http://10.210.162.21:80";
-	private static final String VERSION = "v1";
+	public static final String ETCDURL = "http://10.210.162.21:80";
+	public static final String VERSION = "v1";
 
 	private static Logger logger = LoggerFactory.getLogger(EtcdPropertyStoreTest.class);
 
@@ -31,7 +31,7 @@ public class EtcdPropertyStoreTest {
 	 * @throws EtcdException
 	 * @throws TimeoutException
 	 */
-	private void removeTestData() throws IOException, EtcdException, TimeoutException {
+	public static void removeTestData() throws IOException, EtcdException, TimeoutException {
 		logger.info("Attempting to initialise ETCD with URL: {}", ETCDURL);
 		StringBuffer path = new StringBuffer();
 		path.append("ciao/").append(CIPNAME).append('/').append(VERSION);
@@ -124,7 +124,20 @@ public class EtcdPropertyStoreTest {
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
+		}	
+	}
+	
+	@Test
+	public void testGetMissingConfigValue() {
+		EtcdPropertyStore etcdStore = createInitialStore();
+		try {
+			etcdStore.loadConfig(CIPNAME, VERSION);
+			logger.info("Attempting to read value for invalid key: missingKey");
+			String val = etcdStore.getConfigValue("missingKey");
+			assertNull(val);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
 		}
-		
 	}
 }

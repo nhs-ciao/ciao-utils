@@ -1,12 +1,10 @@
 package uk.nhs.itk.ciao.configuration.impl;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.concurrent.TimeoutException;
 
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.responses.EtcdException;
@@ -16,9 +14,7 @@ import mousio.etcd4j.responses.EtcdKeysResponse.EtcdNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.nhs.itk.ciao.configuration.CIAOProperties;
-
-public class EtcdPropertyStore implements PropertyStore, CIAOProperties {
+public class EtcdPropertyStore implements PropertyStore {
 	
 	private static final String CIAO_PREFIX = "ciao";
 	private static final String EXISTENCE_KEY = "configured";
@@ -74,11 +70,16 @@ public class EtcdPropertyStore implements PropertyStore, CIAOProperties {
 		try {
 			logger.info("Attempting to access ETCD at URL: {}", this.url);
 			etcd = new EtcdClient(URI.create(this.url));
+			if (this.configValues == null) {
+				this.configValues = new HashMap<String, String>();
+			}
 			for (Entry<Object, Object> entry : defaultConfig.entrySet()) {
 				String key = entry.getKey().toString();
 				String value = entry.getValue().toString();
 				EtcdKeysResponse response = etcd.put(path.toString() + key, value).send().get();
 				logger.info("Set value {} in path {}", response.node.value, path.toString() + key);
+				// Also initialise our active config
+				this.configValues.put(key, value);
 			}
 			// Add the "configured" key for future checking
 			EtcdKeysResponse response = etcd.put(path.toString() + EXISTENCE_KEY, "true").send().get();
