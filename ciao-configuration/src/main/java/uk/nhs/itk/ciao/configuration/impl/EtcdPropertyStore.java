@@ -28,6 +28,11 @@ public class EtcdPropertyStore implements PropertyStore {
 		this.url = url;
 	}
 	
+	@Override
+	public String toString() {
+		return configValues.toString();
+	}
+	
 	public boolean storeExists(String cip_name, String version) throws Exception {
 		StringBuffer path = new StringBuffer();
 		path.append(CIAO_PREFIX).append('/').append(cip_name).append('/').append(version).append('/').append(EXISTENCE_KEY);

@@ -37,6 +37,11 @@ public class FilePropertyStore implements PropertyStore {
 	public String getPath() {
 		return filePath;
 	}
+	
+	@Override
+	public String toString() {
+		return configValues.toString();
+	}
 
 	private static Logger logger = LoggerFactory.getLogger(FilePropertyStore.class);
 	

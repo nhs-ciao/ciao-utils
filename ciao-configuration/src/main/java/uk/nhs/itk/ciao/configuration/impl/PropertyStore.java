@@ -30,4 +30,6 @@ public interface PropertyStore {
 	public void setDefaults(String cip_name, String version, Properties defaultConfig) throws Exception;
 	
 	public String getConfigValue(String key) throws Exception;
+	
+	public String toString();
 }

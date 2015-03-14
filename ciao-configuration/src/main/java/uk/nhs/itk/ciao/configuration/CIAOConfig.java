@@ -97,6 +97,15 @@ public class CIAOConfig {
 		}
 	}
 	
+	@Override
+	public String toString() {
+		if (this.propertyStore == null) {
+			return "Config not initialised";
+		} else {
+			return this.propertyStore.toString();
+		}
+	}
+	
 	private void initialise(String etcdURL, String configFilePath,
 			String cipName, String version, Properties defaultConfig) throws Exception {
 		
