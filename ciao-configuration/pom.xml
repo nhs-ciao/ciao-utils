@@ -67,7 +67,19 @@
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
 		</repository>
   </distributionManagement>
-  
+  <build>
+  	<plugins>
+  		<plugin>
+   			<groupId>org.apache.maven.plugins</groupId>
+   			<artifactId>maven-compiler-plugin</artifactId>
+   			<version>3.2</version>
+   			<configuration>
+   				<source>1.5</source>
+   				<target>1.5</target>
+   			</configuration>
+   		</plugin>
+  	</plugins>
+  </build>
   <profiles>
   		<!-- Use this profile to push the library to maven central -->
 		<!-- Usage: mvn deploy -P mavencentral -->
@@ -75,15 +87,6 @@
 			<id>mavencentral</id>
 			<build>
 				<plugins>
-		    		<plugin>
-		    			<groupId>org.apache.maven.plugins</groupId>
-		    			<artifactId>maven-compiler-plugin</artifactId>
-		    			<version>3.2</version>
-		    			<configuration>
-		    				<source>1.5</source>
-		    				<target>1.5</target>
-		    			</configuration>
-		    		</plugin>
 		    		<plugin>
 				      <groupId>org.apache.maven.plugins</groupId>
 				      <artifactId>maven-source-plugin</artifactId>
