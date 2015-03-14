@@ -1,3 +1,16 @@
+/*
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 package uk.nhs.itk.ciao.configuration.impl;
 
 import java.net.URI;
@@ -39,19 +52,19 @@ public class EtcdPropertyStore implements PropertyStore {
 		boolean exists = false;
 		EtcdClient etcd = null;
 		try {
-			logger.info("Attempting to access ETCD at URL: {}", this.url);
+			logger.debug("Attempting to access ETCD at URL: {}", this.url);
 			etcd = new EtcdClient(URI.create(this.url));
-			logger.info("Looking for ETCD path: {}", path.toString());
+			logger.debug("Looking for ETCD path: {}", path.toString());
 			EtcdKeysResponse val = etcd.get(path.toString()).send().get();
-			logger.info("Got existence value: {}", val.node.value);
+			logger.debug("Got existence value: {}", val.node.value);
 			if (val.node.value.equals("true")) {
 				exists = true;
 			}
 		} catch (EtcdException e) {
 			if (e.errorCode == 100) {
-				logger.info("Got an ETCD exception (100) when trying to access ETCD store - the key doesn't exist");
+				logger.debug("Got an ETCD exception (100) when trying to access ETCD store - the key doesn't exist");
 			} else {
-				logger.info("Got an ETCD exception when trying to access ETCD store", e);
+				logger.error("Got an ETCD exception when trying to access ETCD store", e);
 				throw new Exception(e);
 			}
 		} finally {
@@ -73,7 +86,7 @@ public class EtcdPropertyStore implements PropertyStore {
 		path.append(CIAO_PREFIX).append('/').append(cip_name).append('/').append(version).append('/');
 		EtcdClient etcd = null;
 		try {
-			logger.info("Attempting to access ETCD at URL: {}", this.url);
+			logger.debug("Attempting to access ETCD at URL: {}", this.url);
 			etcd = new EtcdClient(URI.create(this.url));
 			if (this.configValues == null) {
 				this.configValues = new HashMap<String, String>();
@@ -82,18 +95,18 @@ public class EtcdPropertyStore implements PropertyStore {
 				String key = entry.getKey().toString();
 				String value = entry.getValue().toString();
 				EtcdKeysResponse response = etcd.put(path.toString() + key, value).send().get();
-				logger.info("Set value {} in path {}", response.node.value, path.toString() + key);
+				logger.debug("Set value {} in path {}", response.node.value, path.toString() + key);
 				// Also initialise our active config
 				this.configValues.put(key, value);
 			}
 			// Add the "configured" key for future checking
 			EtcdKeysResponse response = etcd.put(path.toString() + EXISTENCE_KEY, "true").send().get();
-			logger.info("Set value {} in path {}", response.node.value, path.toString() + EXISTENCE_KEY);
+			logger.debug("Set value {} in path {}", response.node.value, path.toString() + EXISTENCE_KEY);
 		} catch (EtcdException e) {
 			if (e.errorCode == 100) {
-				logger.info("Got an ETCD exception (100) when trying to access ETCD store - the key doesn't exist");
+				logger.debug("Got an ETCD exception (100) when trying to access ETCD store - the key doesn't exist");
 			} else {
-				logger.info("Got an ETCD exception when trying to access ETCD store", e);
+				logger.error("Got an ETCD exception when trying to access ETCD store", e);
 				throw new Exception(e);
 			}
 		} finally {
@@ -106,9 +119,8 @@ public class EtcdPropertyStore implements PropertyStore {
 			throw new Exception("The configuration for this CIP has not been initialised");
 		}
 		if (!this.configValues.containsKey(key)) {
-			logger.info("Key not found: {}", key);
+			logger.debug("Key not found: {}", key);
 		}
-		logger.info("Values: {}", this.configValues);
 		return this.configValues.get(key);
 	}
 
@@ -118,7 +130,7 @@ public class EtcdPropertyStore implements PropertyStore {
 			this.configValues = new HashMap<String, String>();
 			EtcdClient etcd = null;
 			try {
-				logger.info("Attempting to access ETCD at URL: {}", this.url);
+				logger.debug("Attempting to access ETCD at URL: {}", this.url);
 				etcd = new EtcdClient(URI.create(this.url));
 				StringBuffer path = new StringBuffer();
 				path.append(CIAO_PREFIX).append('/').append(cip_name).append('/').append(version);
@@ -129,13 +141,13 @@ public class EtcdPropertyStore implements PropertyStore {
 				for (EtcdNode entry : entries) {
 					String key = entry.key.substring(path.length()+2);
 					this.configValues.put(key, entry.value);
-					logger.info("Adding entry - key: {} , value: {}", key, entry.value);
+					logger.debug("Adding entry - key: {} , value: {}", key, entry.value);
 				}
 			} catch (EtcdException e) {
 				if (e.errorCode == 100) {
-					logger.info("Got an ETCD exception (100) when trying to access ETCD store - the key doesn't exist");
+					logger.debug("Got an ETCD exception (100) when trying to access ETCD store - the key doesn't exist");
 				} else {
-					logger.info("Got an ETCD exception when trying to access ETCD store", e);
+					logger.error("Got an ETCD exception when trying to access ETCD store", e);
 					throw new Exception(e);
 				}
 			} finally {

@@ -115,6 +115,6 @@ object in memory. Another approach is to add it into your Camel registry - for e
 Now, whenever you need to access config in a processor, you can then do it like this:
 
 ```java
-    CIAOConfig ciaoConfig = exchange.getContext().getRegistry().lookupByNameAndType("ciaoConfig", CIAOConfig.class);
+    CIAOConfig ciaoConfig = exchange.getContext().getRegistry().lookupByNameAndType("cipConfig", CIAOConfig.class);
     String pdsURL = ciaoConfig.getConfigValue("PDSURL");
 ```

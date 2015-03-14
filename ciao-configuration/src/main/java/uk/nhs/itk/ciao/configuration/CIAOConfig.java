@@ -1,3 +1,16 @@
+/*
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
 package uk.nhs.itk.ciao.configuration;
 
 import java.util.Properties;
@@ -114,30 +127,30 @@ public class CIAOConfig {
 			EtcdPropertyStore etcd = new EtcdPropertyStore(etcdURL);
 			try {
 				if (etcd.storeExists(cipName, version)) {
-					logger.info("Found etcd config at URL: " + etcdURL);
+					logger.debug("Found etcd config at URL: " + etcdURL);
 					etcd.loadConfig(cipName, version);
 					this.propertyStore = etcd;
 				} else {
-					logger.info("etcd config not yet initialised for this CIP");
+					logger.debug("etcd config not yet initialised for this CIP");
 					etcd.setDefaults(cipName, version, defaultConfig);
-					logger.info("Initialised default etcd config for this CIP at URL: " + etcdURL);
+					logger.debug("Initialised default etcd config for this CIP at URL: " + etcdURL);
 					this.propertyStore = etcd;
 				}
 			} catch (Exception e) {
-				logger.info("Can't connect to ETCD URL provided");
+				logger.error("Can't connect to ETCD URL provided");
 				throw e;
 			}
 		} else {
-			logger.info("No ETCD URL provided, using local configuration");
+			logger.debug("No ETCD URL provided, using local configuration");
 			// Fall-back on file-based config
 			FilePropertyStore fileStore = new FilePropertyStore(configFilePath);
 			if (fileStore.storeExists(cipName, version)) {
-				logger.info("Found file-based config at path: {}", fileStore.getPath());
+				logger.debug("Found file-based config at path: {}", fileStore.getPath());
 				fileStore.loadConfig(cipName, version);
 				this.propertyStore = fileStore;
 			} else {
 				fileStore.setDefaults(cipName, version, defaultConfig);
-				logger.info("Initialised default file-based config for this CIP at path: {}", fileStore.getPath());
+				logger.debug("Initialised default file-based config for this CIP at path: {}", fileStore.getPath());
 				this.propertyStore = fileStore;
 			}
 		}

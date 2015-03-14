@@ -31,6 +31,8 @@ public class FilePropertyStore implements PropertyStore {
 	
 	private static final String CIAO_PREFIX = ".ciao";
 	
+	private static Logger logger = LoggerFactory.getLogger(FilePropertyStore.class);
+	
 	private HashMap<String, String> configValues = null;
 	private String filePath = null;
 	
@@ -43,7 +45,7 @@ public class FilePropertyStore implements PropertyStore {
 		return configValues.toString();
 	}
 
-	private static Logger logger = LoggerFactory.getLogger(FilePropertyStore.class);
+	
 	
 	public FilePropertyStore(String path) {
 		if (path != null) {
@@ -61,13 +63,13 @@ public class FilePropertyStore implements PropertyStore {
 		boolean exists = false;
 		StringBuffer configFileName = new StringBuffer();
 		configFileName.append(this.filePath).append('/').append(cip_name).append("-").append(version).append(".properties");
-		logger.info("Checking if config file exists at path: {}", configFileName);
+		logger.debug("Checking if config file exists at path: {}", configFileName);
 		File f = new File(configFileName.toString());
 		if (f.exists()) {
 			exists = true;
-			logger.info("Yes, file exists");
+			logger.debug("Yes, file exists");
 		} else {
-			logger.info("No, file doesn't exist");
+			logger.debug("No, file doesn't exist");
 		}
 		return exists;
 	}
@@ -99,7 +101,7 @@ public class FilePropertyStore implements PropertyStore {
 			String value = entry.getValue().toString();
 			this.configValues.put(key, value);
 		}
-		logger.info("Default configuration stored in path: {}", configFileName );
+		logger.debug("Default configuration stored in path: {}", configFileName );
 	}
 
 	public String getConfigValue(String key) throws Exception {
@@ -107,9 +109,9 @@ public class FilePropertyStore implements PropertyStore {
 			throw new Exception("The configuration for this CIP has not been initialised");
 		}
 		if (!this.configValues.containsKey(key)) {
-			logger.info("Key not found: {}", key);
+			logger.debug("Key not found: {}", key);
 		}
-		logger.info("Values: {}", this.configValues);
+		logger.debug("Values: {}", this.configValues);
 		return this.configValues.get(key);
 	}
 
@@ -129,7 +131,7 @@ public class FilePropertyStore implements PropertyStore {
 				String key = entry.getKey().toString();
 				String value = entry.getValue().toString();
 				this.configValues.put(key, value);
-				logger.info("Adding entry - key: {} , value: {}", key, value);
+				logger.debug("Adding entry - key: {} , value: {}", key, value);
 			}
 		}
 	}
