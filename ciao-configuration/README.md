@@ -65,7 +65,7 @@ properties file each time you run a build.
 
 You can add any additional CIP configuration into your properties file, for example:
 
-```
+```java
 PDSURL=http://127.0.0.1:4001/syncservice-pds/pds
 ```
 
@@ -101,7 +101,7 @@ as you normally would - e.g.:
 Alternatively, if you don't have much config and would rather just set the values
 directly from your code, you can do this:
 
-```
+```java
     Properties defaultConfig = new Properties();
     defaultConfig.setProperty("testProperty1", "testValue1");
     defaultConfig.setProperty("testProperty2", "testValue2");
