@@ -10,7 +10,7 @@ when the CIP is first run (but will not over-write any changes made subsequently
 
 To make use of this ciao-configuration project in your CIP, simply add this in your POM:
 
-```
+```xml
 	<dependency>
 		<groupId>uk.nhs.interoperability</groupId>
 		<artifactId>ciao-configuration</artifactId>
@@ -20,7 +20,7 @@ To make use of this ciao-configuration project in your CIP, simply add this in y
 
 Note: If you are using a snapshot build rather than a release build you will also need this:
 
-```
+```xml
 	<repositories>
 	<!-- This repository lets us use snapshot builds (only release
 		    builds are propagated to maven central) -->
