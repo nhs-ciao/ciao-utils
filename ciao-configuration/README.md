@@ -8,6 +8,33 @@ The best way of managing the default configuration for your CIP is to use a java
 file within your java project. This will be used to set the default configuration
 when the CIP is first run (but will not over-write any changes made subsequently).
 
+To make use of this ciao-configuration project in your CIP, simply add this in your POM:
+
+```
+	<dependency>
+		<groupId>uk.nhs.interoperability</groupId>
+		<artifactId>ciao-configuration</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</dependency>
+```
+
+Note: If you are using a snapshot build rather than a release build you will also need this:
+
+```
+	<repositories>
+	<!-- This repository lets us use snapshot builds (only release
+		    builds are propagated to maven central) -->
+		<repository>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<id>oss</id>
+			<name>OSS Sonatype</name>
+			<url>https://oss.sonatype.org/content/groups/public/</url>
+		</repository>
+	</repositories>
+```
+
 ### CIP Name and Version
 
 To ensure the name and version is kept in-line with your maven pom, you can add these
