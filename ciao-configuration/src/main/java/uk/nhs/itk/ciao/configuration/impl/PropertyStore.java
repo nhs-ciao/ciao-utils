@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Properties;
 
+import uk.nhs.itk.ciao.exceptions.CIAOConfigurationException;
+
 /**
  * Implementations of the CIAO property store. These should be accessed
  * through the CIAOConfig class.
@@ -32,14 +34,14 @@ public interface PropertyStore {
 	 * @return true if the property store exists and has values in it, false otherwise
 	 * @throws IOException If the property store cannot be accessed
 	 */
-	public boolean storeExists(String cip_name, String version) throws Exception;
+	public boolean storeExists(String cip_name, String version) throws CIAOConfigurationException;
 	
 	/**
 	 * Load all the configuration keys at the specified path
 	 * @param cip_name Name of CIP
 	 * @param version Version of CIP
 	 */
-	public void loadConfig(String cip_name, String version) throws Exception;
+	public void loadConfig(String cip_name, String version) throws CIAOConfigurationException;
 	
 	/**
 	 * Populate the property store with the provided default values
@@ -48,7 +50,7 @@ public interface PropertyStore {
 	 * @param defaultConfig Java properties object with default values to set
 	 * @throws Exception If unable to set default config values
 	 */
-	public void setDefaults(String cip_name, String version, Properties defaultConfig) throws Exception;
+	public void setDefaults(String cip_name, String version, Properties defaultConfig) throws CIAOConfigurationException;
 	
 	/**
 	 * Retrieve a configuration value for the provided key
@@ -56,7 +58,14 @@ public interface PropertyStore {
 	 * @return Value of configuration item
 	 * @throws Exception If unable to retrieve config value
 	 */
-	public String getConfigValue(String key) throws Exception;
+	public String getConfigValue(String key) throws CIAOConfigurationException;
+	
+	/**
+	 * Returns a java properties object containing all configuration values
+	 * @return Java properties object
+	 * @throws Exception If unable to retrieve config values
+	 */
+	public Properties getAllProperties() throws CIAOConfigurationException;
 	
 	/**
 	 * Print all the configuration keys and values - useful for debugging purposes

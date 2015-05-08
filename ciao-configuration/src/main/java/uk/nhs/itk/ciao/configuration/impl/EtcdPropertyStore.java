@@ -13,11 +13,13 @@
 */
 package uk.nhs.itk.ciao.configuration.impl;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.concurrent.TimeoutException;
 
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.responses.EtcdException;
@@ -26,6 +28,8 @@ import mousio.etcd4j.responses.EtcdKeysResponse.EtcdNode;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.nhs.itk.ciao.exceptions.CIAOConfigurationException;
 
 public class EtcdPropertyStore implements PropertyStore {
 	
@@ -46,7 +50,7 @@ public class EtcdPropertyStore implements PropertyStore {
 		return configValues.toString();
 	}
 	
-	public boolean storeExists(String cip_name, String version) throws Exception {
+	public boolean storeExists(String cip_name, String version) throws CIAOConfigurationException {
 		StringBuffer path = new StringBuffer();
 		path.append(CIAO_PREFIX).append('/').append(cip_name).append('/').append(version).append('/').append(EXISTENCE_KEY);
 		boolean exists = false;
@@ -65,8 +69,14 @@ public class EtcdPropertyStore implements PropertyStore {
 				logger.debug("Got an ETCD exception (100) when trying to access ETCD store - the key doesn't exist");
 			} else {
 				logger.error("Got an ETCD exception when trying to access ETCD store", e);
-				throw new Exception(e);
+				throw new CIAOConfigurationException(e);
 			}
+		} catch (IOException e) {
+			logger.error("Got an IO exception when trying to access ETCD store", e);
+			throw new CIAOConfigurationException(e);
+		} catch (TimeoutException e) {
+			logger.error("Timeout when trying to access ETCD store", e);
+			throw new CIAOConfigurationException(e);
 		} finally {
 			try {
 				etcd.close();
@@ -77,10 +87,10 @@ public class EtcdPropertyStore implements PropertyStore {
 		return exists;
 	}
 
-	public void setDefaults(String cip_name, String version, Properties defaultConfig) throws Exception {
+	public void setDefaults(String cip_name, String version, Properties defaultConfig) throws CIAOConfigurationException {
 		// First, check the properties have not already been set
 		if (storeExists(cip_name, version)) {
-			throw new Exception("The ETCD properties have already been initialised for this CIP version");
+			throw new CIAOConfigurationException("The ETCD properties have already been initialised for this CIP version");
 		}
 		StringBuffer path = new StringBuffer();
 		path.append(CIAO_PREFIX).append('/').append(cip_name).append('/').append(version).append('/');
@@ -107,16 +117,22 @@ public class EtcdPropertyStore implements PropertyStore {
 				logger.debug("Got an ETCD exception (100) when trying to access ETCD store - the key doesn't exist");
 			} else {
 				logger.error("Got an ETCD exception when trying to access ETCD store", e);
-				throw new Exception(e);
+				throw new CIAOConfigurationException(e);
 			}
+		} catch (IOException e) {
+			logger.error("Got an IO exception when trying to access ETCD store", e);
+			throw new CIAOConfigurationException(e);
+		} catch (TimeoutException e) {
+			logger.error("Timeout when trying to access ETCD store", e);
+			throw new CIAOConfigurationException(e);
 		} finally {
 			try { etcd.close(); } catch (Exception e) {}
 		}
 	}
 
-	public String getConfigValue(String key) throws Exception {
+	public String getConfigValue(String key) throws CIAOConfigurationException {
 		if (this.configValues == null) {
-			throw new Exception("The configuration for this CIP has not been initialised");
+			throw new CIAOConfigurationException("The configuration for this CIP has not been initialised");
 		}
 		if (!this.configValues.containsKey(key)) {
 			logger.debug("Key not found: {}", key);
@@ -124,7 +140,7 @@ public class EtcdPropertyStore implements PropertyStore {
 		return this.configValues.get(key);
 	}
 
-	public void loadConfig(String cip_name, String version) throws Exception {
+	public void loadConfig(String cip_name, String version) throws CIAOConfigurationException {
 		// TODO Auto-generated method stub
 		if (this.configValues == null) {
 			this.configValues = new HashMap<String, String>();
@@ -148,12 +164,26 @@ public class EtcdPropertyStore implements PropertyStore {
 					logger.debug("Got an ETCD exception (100) when trying to access ETCD store - the key doesn't exist");
 				} else {
 					logger.error("Got an ETCD exception when trying to access ETCD store", e);
-					throw new Exception(e);
+					throw new CIAOConfigurationException(e);
 				}
+			} catch (IOException e) {
+				logger.error("Got an IO exception when trying to access ETCD store", e);
+				throw new CIAOConfigurationException(e);
+			} catch (TimeoutException e) {
+				logger.error("Timeout when trying to access ETCD store", e);
+				throw new CIAOConfigurationException(e);
 			} finally {
 				try { etcd.close(); } catch (Exception e) {}
 			}
 		}
+	}
+	
+	public Properties getAllProperties() throws CIAOConfigurationException {
+		Properties values = new Properties();
+	    for (String key : configValues.keySet()) {
+	    	values.setProperty(key, configValues.get(key));
+	    }
+	    return values;
 	}
 
 }

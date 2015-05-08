@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import uk.nhs.itk.ciao.configuration.impl.EtcdPropertyStore;
 import uk.nhs.itk.ciao.configuration.impl.FilePropertyStore;
 import uk.nhs.itk.ciao.configuration.impl.PropertyStore;
+import uk.nhs.itk.ciao.exceptions.CIAOConfigurationException;
 
 /**
  * The first time a CIP is run, it will attempt to connect to the etcd URL provided.
@@ -60,25 +61,8 @@ public class CIAOConfig {
 	 * @param defaultConfig Java properties object with default config values for CIP
 	 * @throws Exception 
 	 */
-	public CIAOConfig(String args[], String cipName, String version, Properties defaultConfig) throws Exception {
-		// --etcdURL=http://127.0.0.1:4001
-		// --configPath=/etc/ciao
-		OptionParser parser = new OptionParser();
-        parser.accepts( ETCDURLPARAM ).withRequiredArg();
-        parser.accepts( CONFIGPATHPARAM ).withRequiredArg();
-        OptionSet options = parser.parse( args );
-        
-        String etcdURL = null;
-        String configFilePath = null;
-        
-        if (options.has( ETCDURLPARAM )) {
-        	etcdURL = options.valueOf(ETCDURLPARAM).toString();
-        }
-        if (options.has( CONFIGPATHPARAM )) {
-        	configFilePath = options.valueOf(CONFIGPATHPARAM).toString();
-        }
-        
-        initialise(etcdURL, configFilePath, cipName, version, defaultConfig);
+	public CIAOConfig(String args[], String cipName, String version, Properties defaultConfig) throws CIAOConfigurationException {
+		CommandLineParser.initialiseFromCLIArguments(this, args, cipName, version, defaultConfig);
 	}
 	
 	/**
@@ -91,7 +75,7 @@ public class CIAOConfig {
 	 * @throws Exception 
 	 */
 	public CIAOConfig(String etcdURL, String configFilePath,
-			String cipName, String version, Properties defaultConfig) throws Exception {
+			String cipName, String version, Properties defaultConfig) throws CIAOConfigurationException {
 		
 		initialise(etcdURL, configFilePath, cipName, version, defaultConfig);
 	}
@@ -102,12 +86,21 @@ public class CIAOConfig {
 	 * @return value of configuration item
 	 * @throws Exception if the configuration path was not initialised correctly
 	 */
-	public String getConfigValue(String key) throws Exception {
+	public String getConfigValue(String key) throws CIAOConfigurationException {
 		if (this.propertyStore == null) {
-			throw new Exception("Configuration not initialised correctly - see error logs for details.");
+			throw new CIAOConfigurationException("Configuration not initialised correctly - see error logs for details.");
 		} else {
 			return this.propertyStore.getConfigValue(key);
 		}
+	}
+	
+	/**
+	 * Returns a java properties object containing all configuration values
+	 * @return Java properties object
+	 * @throws Exception If unable to retrieve config values
+	 */
+	public Properties getAllProperties() throws CIAOConfigurationException {
+		return this.propertyStore.getAllProperties();
 	}
 	
 	@Override
@@ -119,8 +112,8 @@ public class CIAOConfig {
 		}
 	}
 	
-	private void initialise(String etcdURL, String configFilePath,
-			String cipName, String version, Properties defaultConfig) throws Exception {
+	protected void initialise(String etcdURL, String configFilePath,
+			String cipName, String version, Properties defaultConfig) throws CIAOConfigurationException {
 		
 		// See if we have an ETCD URL
 		if (etcdURL != null) {
@@ -138,7 +131,7 @@ public class CIAOConfig {
 				}
 			} catch (Exception e) {
 				logger.error("Can't connect to ETCD URL provided");
-				throw e;
+				throw new CIAOConfigurationException(e);
 			}
 		} else {
 			logger.debug("No ETCD URL provided, using local configuration");
