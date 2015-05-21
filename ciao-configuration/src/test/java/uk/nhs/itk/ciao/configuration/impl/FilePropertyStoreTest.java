@@ -22,7 +22,10 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -132,6 +135,22 @@ public class FilePropertyStoreTest {
 			logger.info("Attempting to read value for invalid key: missingKey");
 			String val = fileStore.getConfigValue("missingKey");
 			assertNull(val);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testGetConfigKeys() {
+		final FilePropertyStore fileStore = createInitialStore();
+		try {
+			fileStore.loadConfig(CIPNAME, VERSION);
+			logger.info("Attempting to read all config keys");
+			final Set<String> expected = new HashSet<String>(
+						Arrays.asList("testProperty1", "testProperty2"));
+			final Set<String> actual = fileStore.getConfigKeys();
+			assertEquals(expected, actual);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());

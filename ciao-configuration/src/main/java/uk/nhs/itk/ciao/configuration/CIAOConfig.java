@@ -14,9 +14,7 @@
 package uk.nhs.itk.ciao.configuration;
 
 import java.util.Properties;
-
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,11 +42,7 @@ import uk.nhs.itk.ciao.exceptions.CIAOConfigurationException;
  * 
  * @author Adam Hatherly
  */
-public class CIAOConfig {
-	
-	private static String ETCDURLPARAM = "etcdURL";
-	private static String CONFIGPATHPARAM = "configPath";
-	
+public class CIAOConfig {	
 	private PropertyStore propertyStore = null;
 	private static Logger logger = LoggerFactory.getLogger(CIAOConfig.class);
 
@@ -87,11 +81,18 @@ public class CIAOConfig {
 	 * @throws Exception if the configuration path was not initialised correctly
 	 */
 	public String getConfigValue(String key) throws CIAOConfigurationException {
-		if (this.propertyStore == null) {
-			throw new CIAOConfigurationException("Configuration not initialised correctly - see error logs for details.");
-		} else {
-			return this.propertyStore.getConfigValue(key);
-		}
+		requirePropertyStore();
+		return this.propertyStore.getConfigValue(key);
+	}
+	
+	/**
+	 * Returns the set of keys associated with this configuration
+	 * @return A set of configuration keys
+	 * @throws CIAOConfigurationException if the configuration path was not initialised correctly
+	 */
+	public Set<String> getConfigKeys() throws CIAOConfigurationException {
+		requirePropertyStore();
+		return this.propertyStore.getConfigKeys();
 	}
 	
 	/**
@@ -100,6 +101,7 @@ public class CIAOConfig {
 	 * @throws Exception If unable to retrieve config values
 	 */
 	public Properties getAllProperties() throws CIAOConfigurationException {
+		requirePropertyStore();
 		return this.propertyStore.getAllProperties();
 	}
 	
@@ -146,6 +148,16 @@ public class CIAOConfig {
 				logger.debug("Initialised default file-based config for this CIP at path: {}", fileStore.getPath());
 				this.propertyStore = fileStore;
 			}
+		}
+	}
+	
+	/**
+	 * Checks that the backing property store is in a valid state
+	 * @throws CIAOConfigurationException If the property store is not valid
+	 */
+	private void requirePropertyStore() throws CIAOConfigurationException {
+		if (this.propertyStore == null) {
+			throw new CIAOConfigurationException("Configuration not initialised correctly - see error logs for details.");
 		}
 	}
 }

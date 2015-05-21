@@ -14,8 +14,8 @@
 package uk.nhs.itk.ciao.configuration.impl;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Properties;
+import java.util.Set;
 
 import uk.nhs.itk.ciao.exceptions.CIAOConfigurationException;
 
@@ -59,6 +59,14 @@ public interface PropertyStore {
 	 * @throws Exception If unable to retrieve config value
 	 */
 	public String getConfigValue(String key) throws CIAOConfigurationException;
+	
+	
+	/**
+	 * Returns the set of configuration keys associated with this store
+	 * @return A set of configuration keys
+	 * @throws Exception If unable to retrieve config keys
+	 */
+	public Set<String> getConfigKeys() throws CIAOConfigurationException;
 	
 	/**
 	 * Returns a java properties object containing all configuration values

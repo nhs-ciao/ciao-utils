@@ -17,6 +17,7 @@ public class CommandLineParser {
 		OptionParser parser = new OptionParser();
         parser.accepts( ETCDURLPARAM ).withRequiredArg();
         parser.accepts( CONFIGPATHPARAM ).withRequiredArg();
+        parser.allowsUnrecognizedOptions();
         OptionSet options = parser.parse( args );
         
         String etcdURL = null;

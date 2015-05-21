@@ -17,7 +17,10 @@ import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import mousio.etcd4j.EtcdClient;
@@ -148,6 +151,22 @@ public class EtcdPropertyStoreTest {
 			logger.info("Attempting to read value for invalid key: missingKey");
 			String val = etcdStore.getConfigValue("missingKey");
 			assertNull(val);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testGetConfigKeys() {
+		final EtcdPropertyStore etcdStore = createInitialStore();
+		try {
+			etcdStore.loadConfig(CIPNAME, VERSION);
+			logger.info("Attempting to read all config keys");
+			final Set<String> expected = new HashSet<String>(
+						Arrays.asList("testProperty1", "testProperty2"));
+			final Set<String> actual = etcdStore.getConfigKeys();
+			assertEquals(expected, actual);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());

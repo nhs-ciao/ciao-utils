@@ -15,8 +15,10 @@ package uk.nhs.itk.ciao.configuration.impl;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
@@ -131,13 +133,16 @@ public class EtcdPropertyStore implements PropertyStore {
 	}
 
 	public String getConfigValue(String key) throws CIAOConfigurationException {
-		if (this.configValues == null) {
-			throw new CIAOConfigurationException("The configuration for this CIP has not been initialised");
-		}
+		requireValuesMap();
 		if (!this.configValues.containsKey(key)) {
 			logger.debug("Key not found: {}", key);
 		}
 		return this.configValues.get(key);
+	}
+	
+	public Set<String> getConfigKeys() throws CIAOConfigurationException {
+		requireValuesMap();
+		return Collections.unmodifiableSet(configValues.keySet());
 	}
 
 	public void loadConfig(String cip_name, String version) throws CIAOConfigurationException {
@@ -179,6 +184,7 @@ public class EtcdPropertyStore implements PropertyStore {
 	}
 	
 	public Properties getAllProperties() throws CIAOConfigurationException {
+		requireValuesMap();
 		Properties values = new Properties();
 	    for (String key : configValues.keySet()) {
 	    	values.setProperty(key, configValues.get(key));
@@ -186,4 +192,13 @@ public class EtcdPropertyStore implements PropertyStore {
 	    return values;
 	}
 
+	/**
+	 * Checks that the backing values map has been loaded
+	 * @throws CIAOConfigurationException If the values map is not valid
+	 */
+	private void requireValuesMap() throws CIAOConfigurationException {
+		if (this.configValues == null) {
+			throw new CIAOConfigurationException("The configuration for this CIP has not been initialised");
+		}
+	}
 }
