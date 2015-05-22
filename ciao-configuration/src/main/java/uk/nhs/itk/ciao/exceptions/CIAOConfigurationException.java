@@ -12,4 +12,7 @@ public class CIAOConfigurationException extends Exception {
 	public CIAOConfigurationException(Exception e) {
 		super(e);
 	}
+	public CIAOConfigurationException(final String message, final Exception cause) {
+		super(message, cause);
+	}
 }
