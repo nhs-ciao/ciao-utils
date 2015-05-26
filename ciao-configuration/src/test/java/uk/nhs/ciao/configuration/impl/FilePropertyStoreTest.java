@@ -20,8 +20,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
@@ -52,11 +50,10 @@ public class FilePropertyStoreTest {
 		File f = new File(filePath.toString());
 		logger.info("Removing test data from path: {}", filePath);
 		if (f.exists()) {
-			try {
-				Files.delete(f.toPath());
+			if (f.delete()) {
 				logger.info("Removed");
-			} catch (IOException e) {
-				logger.error("Unable to delete configuration file at path: {}", filePath, e);
+			} else {
+				logger.error("Unable to delete configuration file at path: {}", filePath);
 			}
 		}
 	}
