@@ -11,7 +11,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package uk.nhs.itk.ciao.configuration.impl;
+package uk.nhs.ciao.configuration.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,7 +25,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.nhs.itk.ciao.exceptions.CIAOConfigurationException;
+import uk.nhs.ciao.exceptions.CIAOConfigurationException;
 
 /**
  * Convenience class to read configuration from a property file

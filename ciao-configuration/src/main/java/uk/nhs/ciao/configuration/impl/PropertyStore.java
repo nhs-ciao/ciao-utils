@@ -11,18 +11,18 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package uk.nhs.itk.ciao.configuration.impl;
+package uk.nhs.ciao.configuration.impl;
 
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
 
-import uk.nhs.itk.ciao.exceptions.CIAOConfigurationException;
+import uk.nhs.ciao.exceptions.CIAOConfigurationException;
 
 /**
  * Implementations of the CIAO property store. These should be accessed
  * through the CIAOConfig class.
- * @see uk.nhs.itk.ciao.configuration.CIAOConfig
+ * @see uk.nhs.ciao.configuration.CIAOConfig
  * @author Adam Hatherly
  */
 public interface PropertyStore {

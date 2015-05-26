@@ -1,4 +1,4 @@
-package uk.nhs.itk.ciao.exceptions;
+package uk.nhs.ciao.exceptions;
 
 /**
  * Exceptions relating to CIAO Configuration

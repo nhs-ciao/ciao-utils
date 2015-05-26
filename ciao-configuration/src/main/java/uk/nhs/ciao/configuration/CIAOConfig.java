@@ -11,7 +11,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package uk.nhs.itk.ciao.configuration;
+package uk.nhs.ciao.configuration;
 
 import java.util.Properties;
 import java.util.Set;
@@ -19,10 +19,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.nhs.itk.ciao.configuration.impl.EtcdPropertyStore;
-import uk.nhs.itk.ciao.configuration.impl.FilePropertyStore;
-import uk.nhs.itk.ciao.configuration.impl.PropertyStore;
-import uk.nhs.itk.ciao.exceptions.CIAOConfigurationException;
+import uk.nhs.ciao.configuration.impl.EtcdPropertyStore;
+import uk.nhs.ciao.configuration.impl.FilePropertyStore;
+import uk.nhs.ciao.configuration.impl.PropertyStore;
+import uk.nhs.ciao.exceptions.CIAOConfigurationException;
 
 /**
  * The first time a CIP is run, it will attempt to connect to the etcd URL provided.

@@ -11,13 +11,13 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package uk.nhs.itk.ciao.configuration;
+package uk.nhs.ciao.configuration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static uk.nhs.itk.ciao.configuration.impl.EtcdPropertyStoreTest.CIPNAME;
-import static uk.nhs.itk.ciao.configuration.impl.EtcdPropertyStoreTest.ETCDURL;
-import static uk.nhs.itk.ciao.configuration.impl.EtcdPropertyStoreTest.VERSION;
+import static uk.nhs.ciao.configuration.impl.EtcdPropertyStoreTest.CIPNAME;
+import static uk.nhs.ciao.configuration.impl.EtcdPropertyStoreTest.ETCDURL;
+import static uk.nhs.ciao.configuration.impl.EtcdPropertyStoreTest.VERSION;
 
 import java.io.File;
 import java.util.Properties;
@@ -28,8 +28,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.nhs.itk.ciao.configuration.impl.EtcdPropertyStoreTest;
-import uk.nhs.itk.ciao.configuration.impl.FilePropertyStoreTest;
+import uk.nhs.ciao.configuration.CIAOConfig;
+import uk.nhs.ciao.configuration.impl.EtcdPropertyStoreTest;
+import uk.nhs.ciao.configuration.impl.FilePropertyStoreTest;
 
 public class CIAOConfigTest {
 

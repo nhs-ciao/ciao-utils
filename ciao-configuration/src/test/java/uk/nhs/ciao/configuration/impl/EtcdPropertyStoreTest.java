@@ -11,7 +11,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-package uk.nhs.itk.ciao.configuration.impl;
+package uk.nhs.ciao.configuration.impl;
 
 import static org.junit.Assert.*;
 
@@ -31,6 +31,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import uk.nhs.ciao.configuration.impl.EtcdPropertyStore;
 
 public class EtcdPropertyStoreTest {
 

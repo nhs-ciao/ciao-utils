@@ -1,8 +1,8 @@
-package uk.nhs.itk.ciao.configuration;
+package uk.nhs.ciao.configuration;
 
 import java.util.Properties;
 
-import uk.nhs.itk.ciao.exceptions.CIAOConfigurationException;
+import uk.nhs.ciao.exceptions.CIAOConfigurationException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
