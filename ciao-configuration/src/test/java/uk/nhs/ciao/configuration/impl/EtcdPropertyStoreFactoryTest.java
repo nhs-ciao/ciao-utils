@@ -34,14 +34,14 @@ import org.slf4j.LoggerFactory;
 
 import uk.nhs.ciao.configuration.impl.EtcdPropertyStore;
 
-public class EtcdPropertyStoreTest {
+public class EtcdPropertyStoreFactoryTest {
 
 	public static final String CIPNAME = "ciao-configuration-test";
 	//private static final String ETCDURL = "http://104.155.27.125:80";
 	public static final String ETCDURL = "http://127.0.0.1:4001";
 	public static final String VERSION = "v1";
 
-	private static Logger logger = LoggerFactory.getLogger(EtcdPropertyStoreTest.class);
+	private static Logger logger = LoggerFactory.getLogger(EtcdPropertyStoreFactoryTest.class);
 
 	/**
 	 * Removes test data created when executing the unit test
@@ -77,18 +77,23 @@ public class EtcdPropertyStoreTest {
 		}
 	}
 	
-	private EtcdPropertyStore createInitialStore() {
-		EtcdPropertyStore etcdStore = new EtcdPropertyStore(ETCDURL); 
+	private EtcdPropertyStore etcdStore;
+
+	private CipProperties createInitialStore() {
+		CipProperties initialStore = null;
+		
+		etcdStore = new EtcdPropertyStore(ETCDURL); 
 		Properties defaultConfig = new Properties();
 		defaultConfig.setProperty("testProperty1", "testValue1");
 		defaultConfig.setProperty("testProperty2", "testValue2");
 		try {
-			etcdStore.setDefaults(CIPNAME, VERSION, defaultConfig);
+			initialStore = etcdStore.setDefaults(CIPNAME, VERSION, defaultConfig);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			fail(e1.getMessage());
 		}
-		return etcdStore;
+		
+		return initialStore;
 	}
 	
 	@Before
@@ -101,16 +106,17 @@ public class EtcdPropertyStoreTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
+		etcdStore = null;
 		removeTestData();
 	}
 
 	
 	@Test
-	public void testStoreDoesntExist() {
+	public void testVersionDoesntExist() {
 		EtcdPropertyStore etcdStore = new EtcdPropertyStore(ETCDURL); 
 		boolean result = false;
 		try {
-			result = etcdStore.storeExists(CIPNAME, VERSION);
+			result = etcdStore.versionExists(CIPNAME, VERSION);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Error accessing ETCD URL");
@@ -120,10 +126,10 @@ public class EtcdPropertyStoreTest {
 	
 	@Test
 	public void testCreateInitialStore() {
-		EtcdPropertyStore etcdStore = createInitialStore();
+		createInitialStore();
 		boolean result = false;
 		try {
-			result = etcdStore.storeExists(CIPNAME, VERSION);
+			result = etcdStore.versionExists(CIPNAME, VERSION);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Error accessing ETCD URL");
@@ -133,11 +139,11 @@ public class EtcdPropertyStoreTest {
 	
 	@Test
 	public void testGetConfigValue() {
-		EtcdPropertyStore etcdStore = createInitialStore();
+		createInitialStore();
 		try {
-			etcdStore.loadConfig(CIPNAME, VERSION);
+			final CipProperties store = etcdStore.loadConfig(CIPNAME, VERSION);
 			logger.info("Attempting to read value for key: testProperty1");
-			String val = etcdStore.getConfigValue("testProperty1");
+			String val = store.getConfigValue("testProperty1");
 			assertEquals("testValue1", val);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -147,11 +153,11 @@ public class EtcdPropertyStoreTest {
 	
 	@Test
 	public void testGetMissingConfigValue() {
-		EtcdPropertyStore etcdStore = createInitialStore();
+		createInitialStore();
 		try {
-			etcdStore.loadConfig(CIPNAME, VERSION);
+			final CipProperties store = etcdStore.loadConfig(CIPNAME, VERSION);
 			logger.info("Attempting to read value for invalid key: missingKey");
-			String val = etcdStore.getConfigValue("missingKey");
+			String val = store.getConfigValue("missingKey");
 			assertNull(val);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -160,14 +166,34 @@ public class EtcdPropertyStoreTest {
 	}
 	
 	@Test
-	public void testGetConfigKeys() {
-		final EtcdPropertyStore etcdStore = createInitialStore();
-		try {
-			etcdStore.loadConfig(CIPNAME, VERSION);
+	public void testGetDefaultConfigKeys() {
+		// Capture the initially created store instance (i.e. no save->load round-trip in ETCD)
+		final CipProperties store = createInitialStore();
+		try {			
 			logger.info("Attempting to read all config keys");
+			
+			// "configured" key is only returned if the configuration has been loaded from ETCD
 			final Set<String> expected = new HashSet<String>(
 						Arrays.asList("testProperty1", "testProperty2"));
-			final Set<String> actual = etcdStore.getConfigKeys();
+			final Set<String> actual = store.getConfigKeys();
+			assertEquals(expected, actual);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testGetPreviouslySavedConfigKeys() {
+		createInitialStore();
+		try {
+			final CipProperties store = etcdStore.loadConfig(CIPNAME, VERSION);
+			logger.info("Attempting to read all config keys");
+			
+			// "configured" key is automatically registered in ETCD
+			final Set<String> expected = new HashSet<String>(
+						Arrays.asList("testProperty1", "testProperty2", "configured"));
+			final Set<String> actual = store.getConfigKeys();
 			assertEquals(expected, actual);
 		} catch (Exception e) {
 			e.printStackTrace();

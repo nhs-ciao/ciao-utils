@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.nhs.ciao.configuration.impl.EtcdPropertyStore;
 import uk.nhs.ciao.configuration.impl.FilePropertyStore;
-import uk.nhs.ciao.configuration.impl.PropertyStore;
+import uk.nhs.ciao.configuration.impl.CipProperties;
 import uk.nhs.ciao.exceptions.CIAOConfigurationException;
 
 /**
@@ -43,7 +43,7 @@ import uk.nhs.ciao.exceptions.CIAOConfigurationException;
  * @author Adam Hatherly
  */
 public class CIAOConfig {	
-	private PropertyStore propertyStore = null;
+	private CipProperties propertyStore = null;
 	private static Logger logger = LoggerFactory.getLogger(CIAOConfig.class);
 
 	/**
@@ -79,12 +79,34 @@ public class CIAOConfig {
 	 * 
 	 * @param propertyStore The store which holds this configurations properties
 	 */
-	public CIAOConfig(final PropertyStore propertyStore) {
+	public CIAOConfig(final CipProperties propertyStore) {
 		if (propertyStore == null) {
 			throw new NullPointerException("propertyStore");
 		}
 		
 		this.propertyStore = propertyStore;
+	}
+	
+	/**
+	 * The name of the CIP
+	 * 
+	 * @return The name of the CIP
+	 * @throws CIAOConfigurationException If the configuration has not been initialised correctly
+	 */
+	public String getCipName() throws CIAOConfigurationException {
+		requirePropertyStore();
+		return this.propertyStore.getCipName();
+	}
+	
+	/**
+	 * The version of the CIP
+	 * 
+	 * @return The version of the CIP
+	 * @throws CIAOConfigurationException If the configuration has not been initialised correctly
+	 */
+	public String getVersion() throws CIAOConfigurationException {
+		requirePropertyStore();
+		return this.propertyStore.getVersion();
 	}
 	
 	/**
@@ -134,15 +156,13 @@ public class CIAOConfig {
 		if (etcdURL != null) {
 			EtcdPropertyStore etcd = new EtcdPropertyStore(etcdURL);
 			try {
-				if (etcd.storeExists(cipName, version)) {
+				if (etcd.versionExists(cipName, version)) {
 					logger.debug("Found etcd config at URL: " + etcdURL);
-					etcd.loadConfig(cipName, version);
-					this.propertyStore = etcd;
+					this.propertyStore = etcd.loadConfig(cipName, version);
 				} else {
 					logger.debug("etcd config not yet initialised for this CIP");
-					etcd.setDefaults(cipName, version, defaultConfig);
+					this.propertyStore = etcd.setDefaults(cipName, version, defaultConfig);
 					logger.debug("Initialised default etcd config for this CIP at URL: " + etcdURL);
-					this.propertyStore = etcd;
 				}
 			} catch (Exception e) {
 				logger.error("Can't connect to ETCD URL provided");
@@ -152,14 +172,12 @@ public class CIAOConfig {
 			logger.debug("No ETCD URL provided, using local configuration");
 			// Fall-back on file-based config
 			FilePropertyStore fileStore = new FilePropertyStore(configFilePath);
-			if (fileStore.storeExists(cipName, version)) {
+			if (fileStore.versionExists(cipName, version)) {
 				logger.debug("Found file-based config at path: {}", fileStore.getPath());
-				fileStore.loadConfig(cipName, version);
-				this.propertyStore = fileStore;
+				this.propertyStore = fileStore.loadConfig(cipName, version);
 			} else {
-				fileStore.setDefaults(cipName, version, defaultConfig);
+				this.propertyStore = fileStore.setDefaults(cipName, version, defaultConfig);
 				logger.debug("Initialised default file-based config for this CIP at path: {}", fileStore.getPath());
-				this.propertyStore = fileStore;
 			}
 		}
 	}

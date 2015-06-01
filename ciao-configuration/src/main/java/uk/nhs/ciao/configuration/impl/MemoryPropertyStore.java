@@ -7,72 +7,51 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.nhs.ciao.configuration.impl.PropertyStore;
+import uk.nhs.ciao.configuration.impl.CipProperties;
 import uk.nhs.ciao.exceptions.CIAOConfigurationException;
 
 /**
- * A {@link PropertyStore} which maintains properties in memory-based.
+ * A {@link PropertyStore} which maintains properties in memory.
  */
-public class MemoryPropertyStore extends AbstractMapPropertyStore implements PropertyStore {
+public class MemoryPropertyStore implements PropertyStore {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MemoryPropertyStore.class);
 	
-	private final Map<Version, Properties> propertiesByVersion;
-	private Version activeVersion;
+	private final Map<Version, CipProperties> storesByVersion;
 	
 	public MemoryPropertyStore() {
-		super(LOGGER);
-		
-		this.propertiesByVersion = new HashMap<Version, Properties>();
-	}
-	
-	@Override
-	public void setProperty(final String key, final String value) throws CIAOConfigurationException {
-		requireLoaded();
-		propertiesByVersion.get(activeVersion).setProperty(key, value);
-		super.setProperty(key, value);
-	}
-	
-	@Override
-	public void addProperties(final Map<? extends String, ? extends String> properties) throws CIAOConfigurationException {
-		requireLoaded();
-		super.addProperties(properties);
+		this.storesByVersion = new HashMap<Version, CipProperties>();
 	}
 
-	public boolean storeExists(final String cipName, final String cipVersion) throws CIAOConfigurationException {
+	public boolean versionExists(final String cipName, final String cipVersion) throws CIAOConfigurationException {
 		return storeExists(new Version(cipName, cipVersion));
 	}
 
-	public void setDefaults(final String cipName, final String cipVersion, final Properties defaultConfig) throws CIAOConfigurationException {
+	public CipProperties setDefaults(final String cipName, final String cipVersion, final Properties defaultConfig) throws CIAOConfigurationException {
 		final Version version = new Version(cipName, cipVersion);
 		if (storeExists(version)) {
 			throw new CIAOConfigurationException("The properties have already been created for CIP version: " );
 		}
 		
 		// Initialise our active config
-		clear();
-		activeVersion = version;
-		addProperties(defaultConfig);
+		final CipProperties store = new MemoryCipProperties(cipName, cipVersion, defaultConfig);
 		LOGGER.debug("Default configuration stored for version: {}", version);
 		
 		// Store it against the version
-		this.propertiesByVersion.put(version, getAllProperties());
+		this.storesByVersion.put(version, store);
+		return store;
 	}
 	
-	public void loadConfig(final String cipName, final String cipVersion) throws CIAOConfigurationException {
+	public CipProperties loadConfig(final String cipName, final String cipVersion) throws CIAOConfigurationException {
 		final Version version = new Version(cipName, cipVersion);
-		if (isLoaded()) {
-			return;
-		} else if (!storeExists(version)) {
+		if (!storeExists(version)) {
 			throw new CIAOConfigurationException("No properties are available for CIP version: " + version);
-		}		
-		
-		final Properties properties = propertiesByVersion.get(version);
-		activeVersion = version;
-		addProperties(properties);
+		}
+
+		return storesByVersion.get(version);
 	}
 	
 	private boolean storeExists(final Version version) {
-		return propertiesByVersion.containsKey(version);
+		return storesByVersion.containsKey(version);
 	}
 	
 	private static class Version {

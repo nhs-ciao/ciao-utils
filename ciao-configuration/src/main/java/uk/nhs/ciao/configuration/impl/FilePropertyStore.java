@@ -27,7 +27,7 @@ import uk.nhs.ciao.exceptions.CIAOConfigurationException;
  * Convenience class to read configuration from a property file
  * @author Adam Hatherly
  */
-public class FilePropertyStore extends AbstractMapPropertyStore implements PropertyStore {
+public class FilePropertyStore implements PropertyStore {
 	
 	private static final String CIAO_PREFIX = ".ciao";
 	
@@ -40,8 +40,6 @@ public class FilePropertyStore extends AbstractMapPropertyStore implements Prope
 	}
 	
 	public FilePropertyStore(String path) {
-		super(logger);
-		
 		if (path != null) {
 			this.filePath = path;
 		} else {
@@ -53,7 +51,7 @@ public class FilePropertyStore extends AbstractMapPropertyStore implements Prope
 		}
 	}
 	
-	public boolean storeExists(String cip_name, String version) throws CIAOConfigurationException {
+	public boolean versionExists(String cip_name, String version) throws CIAOConfigurationException {
 		boolean exists = false;
 		StringBuffer configFileName = new StringBuffer();
 		configFileName.append(this.filePath).append('/').append(cip_name).append("-").append(version).append(".properties");
@@ -68,9 +66,9 @@ public class FilePropertyStore extends AbstractMapPropertyStore implements Prope
 		return exists;
 	}
 
-	public void setDefaults(String cip_name, String version, Properties defaultConfig) throws CIAOConfigurationException {
+	public CipProperties setDefaults(String cip_name, String version, Properties defaultConfig) throws CIAOConfigurationException {
 		// First, check the properties have not already been set
-		if (storeExists(cip_name, version)) {
+		if (versionExists(cip_name, version)) {
 			throw new CIAOConfigurationException("The properties file has already been created for this CIP version");
 		}
 		StringBuffer configFileName = new StringBuffer();
@@ -95,15 +93,12 @@ public class FilePropertyStore extends AbstractMapPropertyStore implements Prope
 		}
 		
 		// Also initialise our active config
-		addProperties(defaultConfig);
-		logger.debug("Default configuration stored in path: {}", configFileName );
+		final CipProperties store = new MemoryCipProperties(cip_name, version, defaultConfig);
+		logger.debug("Default configuration stored in path: {}", configFileName);
+		return store;
 	}
 
-	public void loadConfig(String cip_name, String version) throws CIAOConfigurationException {
-		if (isLoaded()) {
-			return;
-		}
-		
+	public CipProperties loadConfig(String cip_name, String version) throws CIAOConfigurationException {
 		StringBuffer configFileName = new StringBuffer();
 		configFileName.append(this.filePath).append('/').append(cip_name).append("-").append(version).append(".properties");
 		File f = new File(configFileName.toString());
@@ -118,6 +113,6 @@ public class FilePropertyStore extends AbstractMapPropertyStore implements Prope
 			throw new CIAOConfigurationException(e);
 		}
 		
-		addProperties(props);
+		return new MemoryCipProperties(cip_name, version, props);
 	}
 }

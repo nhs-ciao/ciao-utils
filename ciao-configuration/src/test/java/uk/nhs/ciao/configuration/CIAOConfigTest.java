@@ -15,9 +15,9 @@ package uk.nhs.ciao.configuration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static uk.nhs.ciao.configuration.impl.EtcdPropertyStoreTest.CIPNAME;
-import static uk.nhs.ciao.configuration.impl.EtcdPropertyStoreTest.ETCDURL;
-import static uk.nhs.ciao.configuration.impl.EtcdPropertyStoreTest.VERSION;
+import static uk.nhs.ciao.configuration.impl.EtcdPropertyStoreFactoryTest.CIPNAME;
+import static uk.nhs.ciao.configuration.impl.EtcdPropertyStoreFactoryTest.ETCDURL;
+import static uk.nhs.ciao.configuration.impl.EtcdPropertyStoreFactoryTest.VERSION;
 
 import java.io.File;
 import java.util.Properties;
@@ -29,8 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.nhs.ciao.configuration.CIAOConfig;
-import uk.nhs.ciao.configuration.impl.EtcdPropertyStoreTest;
-import uk.nhs.ciao.configuration.impl.FilePropertyStoreTest;
+import uk.nhs.ciao.configuration.impl.EtcdPropertyStoreFactoryTest;
+import uk.nhs.ciao.configuration.impl.FilePropertyStoreFactoryTest;
 
 public class CIAOConfigTest {
 
@@ -49,8 +49,8 @@ public class CIAOConfigTest {
 
 	@After
 	public void tearDown() throws Exception {
-		EtcdPropertyStoreTest.removeTestData();
-		FilePropertyStoreTest.removeTestData();
+		EtcdPropertyStoreFactoryTest.removeTestData();
+		FilePropertyStoreFactoryTest.removeTestData();
 	}
 
 	@Test

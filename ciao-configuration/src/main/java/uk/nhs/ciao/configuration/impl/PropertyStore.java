@@ -1,47 +1,42 @@
-/*
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-*/
 package uk.nhs.ciao.configuration.impl;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.Set;
 
 import uk.nhs.ciao.exceptions.CIAOConfigurationException;
 
 /**
- * Implementations of the CIAO property store. These should be accessed
+ * Implementations of the Ciao PropertyStore should be accessed
  * through the CIAOConfig class.
+ * <p>
+ * This interface provides methods to check and load versioned CIP
+ * properties.
+ * <p>
+ * The property store implementations handles the specifics of how/where
+ * properties are stored (e.g. file system, etcd) and can load
+ * multiple versions of CipProperties. In contrast, CipProperties provides
+ * access to a specific set of versioned properties.
+ * 
  * @see uk.nhs.ciao.configuration.CIAOConfig
  * @author Adam Hatherly
  */
 public interface PropertyStore {
-	
 	/**
-	 * Checks whether the property store exists.
+	 * Checks whether the specified versioned properties exists in the store.
 	 * @param cip_name Name of CIP
 	 * @param version Version of CIP
-	 * @return true if the property store exists and has values in it, false otherwise
+	 * @return true if the version exists and has values in it, false otherwise
 	 * @throws IOException If the property store cannot be accessed
 	 */
-	public boolean storeExists(String cip_name, String version) throws CIAOConfigurationException;
+	public boolean versionExists(String cip_name, String version) throws CIAOConfigurationException;
 	
 	/**
 	 * Load all the configuration keys at the specified path
 	 * @param cip_name Name of CIP
 	 * @param version Version of CIP
+	 * @return A loaded CipProperties instance matching the specified name and version
 	 */
-	public void loadConfig(String cip_name, String version) throws CIAOConfigurationException;
+	public CipProperties loadConfig(String cip_name, String version) throws CIAOConfigurationException;
 	
 	/**
 	 * Populate the property store with the provided default values
@@ -49,35 +44,7 @@ public interface PropertyStore {
 	 * @param version Version of CIP
 	 * @param defaultConfig Java properties object with default values to set
 	 * @throws Exception If unable to set default config values
+	 * @return A CipProperties instance matching the specified name and version and configured with the specified defaults
 	 */
-	public void setDefaults(String cip_name, String version, Properties defaultConfig) throws CIAOConfigurationException;
-	
-	/**
-	 * Retrieve a configuration value for the provided key
-	 * @param key Key to identify config value
-	 * @return Value of configuration item
-	 * @throws Exception If unable to retrieve config value
-	 */
-	public String getConfigValue(String key) throws CIAOConfigurationException;
-	
-	
-	/**
-	 * Returns the set of configuration keys associated with this store
-	 * @return A set of configuration keys
-	 * @throws Exception If unable to retrieve config keys
-	 */
-	public Set<String> getConfigKeys() throws CIAOConfigurationException;
-	
-	/**
-	 * Returns a java properties object containing all configuration values
-	 * @return Java properties object
-	 * @throws Exception If unable to retrieve config values
-	 */
-	public Properties getAllProperties() throws CIAOConfigurationException;
-	
-	/**
-	 * Print all the configuration keys and values - useful for debugging purposes
-	 * @return All key-value pairs held
-	 */
-	public String toString();
+	public CipProperties setDefaults(String cip_name, String version, Properties defaultConfig) throws CIAOConfigurationException;
 }
