@@ -75,6 +75,19 @@ public class CIAOConfig {
 	}
 	
 	/**
+	 * Constructs a CIAOConfig instance backed by the specified property store
+	 * 
+	 * @param propertyStore The store which holds this configurations properties
+	 */
+	public CIAOConfig(final PropertyStore propertyStore) {
+		if (propertyStore == null) {
+			throw new NullPointerException("propertyStore");
+		}
+		
+		this.propertyStore = propertyStore;
+	}
+	
+	/**
 	 * Method to retrieve the configuration value for a given key
 	 * @param key
 	 * @return value of configuration item
