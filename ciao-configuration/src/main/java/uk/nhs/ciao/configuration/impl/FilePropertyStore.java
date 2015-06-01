@@ -16,10 +16,6 @@ package uk.nhs.ciao.configuration.impl;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Map.Entry;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -31,27 +27,21 @@ import uk.nhs.ciao.exceptions.CIAOConfigurationException;
  * Convenience class to read configuration from a property file
  * @author Adam Hatherly
  */
-public class FilePropertyStore implements PropertyStore {
+public class FilePropertyStore extends AbstractMapPropertyStore implements PropertyStore {
 	
 	private static final String CIAO_PREFIX = ".ciao";
 	
-	private static Logger logger = LoggerFactory.getLogger(FilePropertyStore.class);
+	private static final Logger logger = LoggerFactory.getLogger(FilePropertyStore.class);
 	
-	private HashMap<String, String> configValues = null;
 	private String filePath = null;
 	
 	public String getPath() {
 		return filePath;
 	}
 	
-	@Override
-	public String toString() {
-		return configValues.toString();
-	}
-
-	
-	
 	public FilePropertyStore(String path) {
+		super(logger);
+		
 		if (path != null) {
 			this.filePath = path;
 		} else {
@@ -105,75 +95,29 @@ public class FilePropertyStore implements PropertyStore {
 		}
 		
 		// Also initialise our active config
-		if (this.configValues == null) {
-			this.configValues = new HashMap<String, String>();
-		}
-		for (Entry<Object,Object> entry : defaultConfig.entrySet()) {
-			String key = entry.getKey().toString();
-			String value = entry.getValue().toString();
-			this.configValues.put(key, value);
-		}
+		addProperties(defaultConfig);
 		logger.debug("Default configuration stored in path: {}", configFileName );
 	}
 
-	public String getConfigValue(String key) throws CIAOConfigurationException {
-		requireValuesMap();
-		if (!this.configValues.containsKey(key)) {
-			logger.debug("Key not found: {}", key);
-		}
-		logger.debug("Values: {}", this.configValues);
-		return this.configValues.get(key);
-	}
-	
-	public Set<String> getConfigKeys() throws CIAOConfigurationException {
-		requireValuesMap();
-		return Collections.unmodifiableSet(configValues.keySet());
-	}
-
 	public void loadConfig(String cip_name, String version) throws CIAOConfigurationException {
-		// TODO Auto-generated method stub
-		if (this.configValues == null) {
-			this.configValues = new HashMap<String, String>();
-			
-			StringBuffer configFileName = new StringBuffer();
-			configFileName.append(this.filePath).append('/').append(cip_name).append("-").append(version).append(".properties");
-			File f = new File(configFileName.toString());
-			Properties props = new Properties();
-			FileInputStream fis;
-			try {
-				fis = new FileInputStream(f);
-				props.load(fis);
-				fis.close();
-			} catch (Exception e) {
-				logger.error(e.getMessage());
-				throw new CIAOConfigurationException(e);
-			}
-			
-			for (Entry<Object,Object> entry : props.entrySet()) {
-				String key = entry.getKey().toString();
-				String value = entry.getValue().toString();
-				this.configValues.put(key, value);
-				logger.debug("Adding entry - key: {} , value: {}", key, value);
-			}
+		if (isLoaded()) {
+			return;
 		}
-	}
-
-	public Properties getAllProperties() throws CIAOConfigurationException {
-		requireValuesMap();
-		Properties values = new Properties();
-	    for (String key : configValues.keySet()) {
-	    	values.setProperty(key, configValues.get(key));
-	    }
-	    return values;
-	}
-	
-	/**
-	 * Checks that the backing values map has been loaded
-	 * @throws CIAOConfigurationException If the values map is not valid
-	 */
-	private void requireValuesMap() throws CIAOConfigurationException {
-		if (this.configValues == null) {
-			throw new CIAOConfigurationException("The configuration for this CIP has not been initialised");
+		
+		StringBuffer configFileName = new StringBuffer();
+		configFileName.append(this.filePath).append('/').append(cip_name).append("-").append(version).append(".properties");
+		File f = new File(configFileName.toString());
+		Properties props = new Properties();
+		FileInputStream fis;
+		try {
+			fis = new FileInputStream(f);
+			props.load(fis);
+			fis.close();
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			throw new CIAOConfigurationException(e);
 		}
+		
+		addProperties(props);
 	}
 }
