@@ -43,7 +43,7 @@ import uk.nhs.ciao.exceptions.CIAOConfigurationException;
  * @author Adam Hatherly
  */
 public class CIAOConfig {	
-	private CipProperties propertyStore = null;
+	private CipProperties cipProperties = null;
 	private static Logger logger = LoggerFactory.getLogger(CIAOConfig.class);
 
 	/**
@@ -79,12 +79,12 @@ public class CIAOConfig {
 	 * 
 	 * @param propertyStore The store which holds this configurations properties
 	 */
-	public CIAOConfig(final CipProperties propertyStore) {
-		if (propertyStore == null) {
-			throw new NullPointerException("propertyStore");
+	public CIAOConfig(final CipProperties cipProperties) {
+		if (cipProperties == null) {
+			throw new NullPointerException("cipProperties");
 		}
 		
-		this.propertyStore = propertyStore;
+		this.cipProperties = cipProperties;
 	}
 	
 	/**
@@ -94,8 +94,8 @@ public class CIAOConfig {
 	 * @throws CIAOConfigurationException If the configuration has not been initialised correctly
 	 */
 	public String getCipName() throws CIAOConfigurationException {
-		requirePropertyStore();
-		return this.propertyStore.getCipName();
+		requireCipProperties();
+		return this.cipProperties.getCipName();
 	}
 	
 	/**
@@ -105,8 +105,8 @@ public class CIAOConfig {
 	 * @throws CIAOConfigurationException If the configuration has not been initialised correctly
 	 */
 	public String getVersion() throws CIAOConfigurationException {
-		requirePropertyStore();
-		return this.propertyStore.getVersion();
+		requireCipProperties();
+		return this.cipProperties.getVersion();
 	}
 	
 	/**
@@ -116,8 +116,8 @@ public class CIAOConfig {
 	 * @throws Exception if the configuration path was not initialised correctly
 	 */
 	public String getConfigValue(String key) throws CIAOConfigurationException {
-		requirePropertyStore();
-		return this.propertyStore.getConfigValue(key);
+		requireCipProperties();
+		return this.cipProperties.getConfigValue(key);
 	}
 	
 	/**
@@ -126,8 +126,8 @@ public class CIAOConfig {
 	 * @throws CIAOConfigurationException if the configuration path was not initialised correctly
 	 */
 	public Set<String> getConfigKeys() throws CIAOConfigurationException {
-		requirePropertyStore();
-		return this.propertyStore.getConfigKeys();
+		requireCipProperties();
+		return this.cipProperties.getConfigKeys();
 	}
 	
 	/**
@@ -136,16 +136,16 @@ public class CIAOConfig {
 	 * @throws Exception If unable to retrieve config values
 	 */
 	public Properties getAllProperties() throws CIAOConfigurationException {
-		requirePropertyStore();
-		return this.propertyStore.getAllProperties();
+		requireCipProperties();
+		return this.cipProperties.getAllProperties();
 	}
 	
 	@Override
 	public String toString() {
-		if (this.propertyStore == null) {
+		if (this.cipProperties == null) {
 			return "Config not initialised";
 		} else {
-			return this.propertyStore.toString();
+			return this.cipProperties.toString();
 		}
 	}
 	
@@ -158,10 +158,10 @@ public class CIAOConfig {
 			try {
 				if (etcd.versionExists(cipName, version)) {
 					logger.debug("Found etcd config at URL: " + etcdURL);
-					this.propertyStore = etcd.loadConfig(cipName, version);
+					this.cipProperties = etcd.loadConfig(cipName, version);
 				} else {
 					logger.debug("etcd config not yet initialised for this CIP");
-					this.propertyStore = etcd.setDefaults(cipName, version, defaultConfig);
+					this.cipProperties = etcd.setDefaults(cipName, version, defaultConfig);
 					logger.debug("Initialised default etcd config for this CIP at URL: " + etcdURL);
 				}
 			} catch (Exception e) {
@@ -174,20 +174,20 @@ public class CIAOConfig {
 			FilePropertyStore fileStore = new FilePropertyStore(configFilePath);
 			if (fileStore.versionExists(cipName, version)) {
 				logger.debug("Found file-based config at path: {}", fileStore.getPath());
-				this.propertyStore = fileStore.loadConfig(cipName, version);
+				this.cipProperties = fileStore.loadConfig(cipName, version);
 			} else {
-				this.propertyStore = fileStore.setDefaults(cipName, version, defaultConfig);
+				this.cipProperties = fileStore.setDefaults(cipName, version, defaultConfig);
 				logger.debug("Initialised default file-based config for this CIP at path: {}", fileStore.getPath());
 			}
 		}
 	}
 	
 	/**
-	 * Checks that the backing property store is in a valid state
-	 * @throws CIAOConfigurationException If the property store is not valid
+	 * Checks that the backing CipProperties is in a valid state
+	 * @throws CIAOConfigurationException If the CipProperties is not valid
 	 */
-	private void requirePropertyStore() throws CIAOConfigurationException {
-		if (this.propertyStore == null) {
+	private void requireCipProperties() throws CIAOConfigurationException {
+		if (this.cipProperties == null) {
 			throw new CIAOConfigurationException("Configuration not initialised correctly - see error logs for details.");
 		}
 	}
