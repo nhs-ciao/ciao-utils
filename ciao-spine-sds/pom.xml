@@ -1,0 +1,63 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+		<groupId>uk.nhs.ciao</groupId>
+		<artifactId>ciao-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>ciao-spine-sds</artifactId>
+  
+  <properties>
+		<ciao.core.version>0.0.1-SNAPSHOT</ciao.core.version>
+		<ciao.skipBinArchive>false</ciao.skipBinArchive>
+		<ciao.addClasspath>true</ciao.addClasspath>
+  </properties>
+
+  <name>ciao-spine-sds</name>
+  <description>Utility classes for accessing the Spine Directory Service - for use within CIAO CIPs</description>
+  
+  <dependencies>
+  		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ciao-core</artifactId>
+		</dependency>
+		<!-- logging -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+		</dependency>
+  </dependencies>
+  
+  <dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>ciao-core</artifactId>
+				<version>${ciao.core.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<!-- Java 1.7 is required by newer Camel versions -->
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+</project>
