@@ -24,7 +24,7 @@ public class QuerySDS {
 			template.sendBody(
 			    "ldap:ldapserver?base=ou=mygroup,ou=groups,ou=system",
 			    "(member=uid=huntc,ou=users,ou=system)");
-			Collection<?> results = 
+			Collection<?> results = (Collection<?>)
 			template.sendBody("ldap:ldapserver?base=ou=mygroup,ou=groups,ou=system",
 								ExchangePattern.InOut, 
 								"(member=uid=huntc,ou=users,ou=system)");
@@ -42,6 +42,8 @@ public class QuerySDS {
 			  */
 			  System.out.println(searchResult.toString());
 			}
+			
+			return null;
 	}
 	
 }
