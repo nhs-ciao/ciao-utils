@@ -66,4 +66,23 @@ do
   perl -pi -e "s/TKW_ROOT/$escapedPath/g" $f
 done
 
+
+find $path/contrib -name "*.properties" | while read f
+do
+  perl -pi -e "s/__USER_NAME_AND_ORGANISATION_NOT_SET__/$username/g" $f
+  perl -pi -e "s/TKW_ROOT/$escapedPath/g" $f
+done
+
+find $path/contrib -name "*.txt" | while read f
+do
+  perl -pi -e "s/__USER_NAME_AND_ORGANISATION_NOT_SET__/$username/g" $f
+  perl -pi -e "s/TKW_ROOT/$escapedPath/g" $f
+done
+
+find $path/contrib -name "*.conf" | while read f
+do
+  perl -pi -e "s/__USER_NAME_AND_ORGANISATION_NOT_SET__/$username/g" $f
+  perl -pi -e "s/TKW_ROOT/$escapedPath/g" $f
+done
+
 echo "Installation complete"
