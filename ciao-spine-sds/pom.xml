@@ -35,6 +35,7 @@
 			<groupId>org.apache.directory.server</groupId>
 			<artifactId>apacheds-all</artifactId>
 			<version>1.5.7</version>
+			<scope>test</scope>
 			<exclusions>
 			<!--
 			 shared-ldap-schema module needs to be excluded to avoid multiple schema resources on the classpath
