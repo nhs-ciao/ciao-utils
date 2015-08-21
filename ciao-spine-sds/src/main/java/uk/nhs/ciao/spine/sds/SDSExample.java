@@ -7,27 +7,87 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.ldap.InitialLdapContext;
 
+import org.apache.camel.CamelContext;
+import org.apache.camel.ProducerTemplate;
+import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.impl.DefaultProducerTemplate;
+import org.apache.camel.impl.SimpleRegistry;
+
+import uk.nhs.ciao.spine.sds.ldap.CamelLdapConnection;
 import uk.nhs.ciao.spine.sds.ldap.DefaultLdapConnection;
+import uk.nhs.ciao.spine.sds.ldap.LdapConnection;
 import uk.nhs.ciao.spine.sds.model.AccreditedSystem;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Throwables;
 
 public class SDSExample {
 	public static void main(final String[] args) throws Exception {
-		final Hashtable<Object, Object> env = new Hashtable<Object, Object>();
-		env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-		env.put(Context.PROVIDER_URL, "ldap://localhost:389/");
-		//env.put(Context.SECURITY_PROTOCOL, "ssl");
-		env.put(Context.SECURITY_AUTHENTICATION, "simple");
-		env.put(Context.SECURITY_PRINCIPAL, "cn=Directory Manager");
-		env.put(Context.SECURITY_CREDENTIALS, "admin");
+		long startTime = System.currentTimeMillis();
+		final boolean useCamel = false;
 		
-		final InitialLdapContext context = new InitialLdapContext(env, null);
-		final DefaultLdapConnection connection = new DefaultLdapConnection(context);
-		connection.enableRequestPaging(500);
+		CamelContext camelContext = null;
+		ProducerTemplate producerTemplate = null;
 		
-		final SpineDirectoryService sds = new SpineDirectoryService(connection);
-		new SDSExample(sds).run();
+		try {
+			final Hashtable<Object, Object> env = new Hashtable<Object, Object>();
+			env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+			env.put(Context.PROVIDER_URL, "ldap://localhost:389/");
+			//env.put(Context.SECURITY_PROTOCOL, "ssl");
+			env.put(Context.SECURITY_AUTHENTICATION, "simple");
+			env.put(Context.SECURITY_PRINCIPAL, "cn=Directory Manager");
+			env.put(Context.SECURITY_CREDENTIALS, "admin");
+			
+			// Enable connection pooling - see http://docs.oracle.com/javase/jndi/tutorial/ldap/connect/pool.html
+			env.put("com.sun.jndi.ldap.connect.pool", "true");
+			
+			final LdapConnection connection;
+			if (useCamel) {
+				final String beanRef = "sdsInitialContext";
+				final SimpleRegistry registry = new SimpleRegistry() {
+					@Override
+					public Object lookupByName(final String name) {
+						// Simulating 'prototype' option in spring config
+						// Each lookup from the LDAP component requires a new instance!
+						if (beanRef.equals(name)) {
+							try {
+								return new InitialLdapContext(env, null);
+							} catch (NamingException e) {
+								Throwables.propagate(e);
+							}
+						}
+						
+						return super.lookupByName(name);
+					}
+				};
+				
+				camelContext = new DefaultCamelContext(registry);
+				producerTemplate = new DefaultProducerTemplate(camelContext);
+				
+				camelContext.start();
+				producerTemplate.start();
+				
+				connection = new CamelLdapConnection(producerTemplate, beanRef);
+			} else {
+				final InitialLdapContext context = new InitialLdapContext(env, null);
+				connection = new DefaultLdapConnection(context);
+			}
+			
+			connection.enableRequestPaging(500);
+			
+			final SpineDirectoryService sds = new SpineDirectoryService(connection);
+			new SDSExample(sds).run();
+		} finally {
+			if (camelContext != null) {
+				camelContext.stop();
+			}
+			
+			if (producerTemplate != null) {
+				producerTemplate.stop();
+			}
+		}
+		
+		System.out.println("Time: " + (System.currentTimeMillis() - startTime));
 	}
 	
 	private final SpineDirectoryService sds;

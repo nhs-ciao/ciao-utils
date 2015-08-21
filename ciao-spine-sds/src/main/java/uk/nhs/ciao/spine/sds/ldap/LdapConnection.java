@@ -12,7 +12,7 @@ public interface LdapConnection {
 	public abstract void disableRequestPaging();
 
 	public abstract <T> T get(LdapQuery query, SearchResultMapper<T> mapper)
-			throws NamingException;
+			throws NamingException, IOException;
 
 	public abstract <T> List<T> list(LdapQuery query,
 			SearchResultMapper<T> mapper) throws NamingException, IOException;

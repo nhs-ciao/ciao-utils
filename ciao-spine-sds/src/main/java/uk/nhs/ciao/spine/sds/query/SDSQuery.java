@@ -20,7 +20,7 @@ public abstract class SDSQuery<T> {
 		this.searchResultMapper = Preconditions.checkNotNull(searchResultMapper);
 	}
 	
-	public T get() throws NamingException {
+	public T get() throws IOException, NamingException {
 		return connection.get(getLdapQuery(), searchResultMapper);
 	}
 	
