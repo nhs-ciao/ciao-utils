@@ -1,4 +1,4 @@
-package uk.nhs.ciao.spine.sds;
+package uk.nhs.ciao.spine.sds.model;
 
 import java.util.Collection;
 import java.util.Set;
