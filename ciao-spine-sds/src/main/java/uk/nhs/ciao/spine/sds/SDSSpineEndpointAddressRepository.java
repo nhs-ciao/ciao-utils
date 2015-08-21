@@ -37,7 +37,7 @@ public class SDSSpineEndpointAddressRepository {
 		this.sds = Preconditions.checkNotNull(sds);
 	}
 	
-	public SpineEndpointAddress findUsingODSCode(final String service, final String action, final String odsCode) throws NamingException, IOException {
+	public SpineEndpointAddress findByODSCode(final String service, final String action, final String odsCode) throws NamingException, IOException {
 		final String svcIA = service + ":" + action;
 		
 		final List<AccreditedSystem> accreditedSystems = sds.findAccreditedSystems()
@@ -75,7 +75,7 @@ public class SDSSpineEndpointAddressRepository {
 		return null;
 	}
 	
-	public SpineEndpointAddress findUsingAsid(final String service, final String action, final String asid) throws NamingException, IOException {
+	public SpineEndpointAddress findByAsid(final String service, final String action, final String asid) throws NamingException, IOException {
 		final String svcIA = service + ":" + action;
 	
 		final AccreditedSystem accreditedSystem = sds.findAccreditedSystems()

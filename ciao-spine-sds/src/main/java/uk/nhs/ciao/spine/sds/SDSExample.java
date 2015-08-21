@@ -104,10 +104,10 @@ public class SDSExample {
 		findMatchesInDirectory();
 		
 		// by ASID
-		System.out.println(repository.findUsingAsid("urn:nhs:names:services:ebsepr", "PRPA_IN030000UK11", "951718497518"));
+		System.out.println(repository.findByAsid("urn:nhs:names:services:ebsepr", "PRPA_IN030000UK11", "951718497518"));
 		
 		// by ODSCode
-		System.out.println(repository.findUsingODSCode("urn:nhs:names:services:ebs", "PRSC_IN150001UK02", "YEA"));
+		System.out.println(repository.findByODSCode("urn:nhs:names:services:ebs", "PRSC_IN150001UK02", "YEA"));
 	}
 	
 	public void findMatchesInDirectory() throws IOException, NamingException {
@@ -116,7 +116,7 @@ public class SDSExample {
 				final int index = svcIA.lastIndexOf(':');
 				final String service = svcIA.substring(0, index);
 				final String action = svcIA.substring(index + 1);
-				final SpineEndpointAddress address = repository.findUsingODSCode(service, action, as.getNhsIDCode());
+				final SpineEndpointAddress address = repository.findByODSCode(service, action, as.getNhsIDCode());
 				if (address != null) {
 					System.out.println(address);
 				}
