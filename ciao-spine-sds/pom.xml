@@ -21,6 +21,10 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>ciao-core</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+		</dependency>
 		<!-- logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
