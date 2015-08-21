@@ -16,11 +16,16 @@ import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.PagedResultsControl;
 import javax.naming.ldap.PagedResultsResponseControl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
 
 public class DefaultLdapConnection implements LdapConnection {
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLdapConnection.class);
+	
 	private final Hashtable<Object, Object> environment;
-	private Integer pageSize;
+	private volatile Integer pageSize;
 	
 	public DefaultLdapConnection(final Map<?, ?> environment) {
 		this.environment = new Hashtable<Object, Object>(environment);
@@ -37,15 +42,11 @@ public class DefaultLdapConnection implements LdapConnection {
 	}
 
 	@Override
-	public <T> T get(final LdapQuery query, SearchResultMapper<T> mapper) throws NamingException {
-		final LdapContext context = createLdapContext();
+	public <T> T get(final LdapQuery query, final SearchResultMapper<T> mapper) throws NamingException {
+		final LdapContext context  = createLdapContext();
+		
 		try {
-			final NamingEnumeration<SearchResult> results = executeSearch(context, query);
-			try {
-				return results.hasMore() ? mapper.mapSearchResult(results.next()) : null;
-			} finally {
-				closeQuietly(results);
-			}
+			return get(context, query, mapper);
 		} finally {
 			closeQuietly(context);
 		}
@@ -56,52 +57,66 @@ public class DefaultLdapConnection implements LdapConnection {
 		final LdapContext context = createLdapContext();
 		
 		try {
-			final List<T> list = Lists.newArrayList();
-			
-			if (pageSize == null) {
-				context.setRequestControls(null);
-			} else {
-				context.setRequestControls(new Control[] {
-						new PagedResultsControl(pageSize, Control.NONCRITICAL)
-				});
-			}
-			
-			byte[] cookie;
-			do {
-				cookie = null;
-				
-				final NamingEnumeration<SearchResult> results = executeSearch(context, query);
-				try {
-					while (results.hasMore()) {
-						final T item = mapper.mapSearchResult(results.next());
-						if (item != null) {
-							list.add(item);
-						}
-					}
-				} catch (final SizeLimitExceededException e) {
-					e.printStackTrace(); // TODO: LOGGER
-				} finally {
-					closeQuietly(results);
-				}
-				
-				if (pageSize != null) {
-					for (Control control: context.getResponseControls()) {
-						if (control instanceof PagedResultsResponseControl) {
-							final PagedResultsResponseControl pagedResultsResponseControl = (PagedResultsResponseControl) control;
-							cookie = pagedResultsResponseControl.getCookie();
-							
-							context.setRequestControls(new Control[] {
-									new PagedResultsControl(pageSize, cookie, Control.NONCRITICAL)
-							});
-						}
-					}
-				}
-			} while (cookie != null);
-			
-			return list;
+			return list(context, query, mapper);
 		} finally {
 			closeQuietly(context);
 		}
+	}
+	
+	private <T> T get(final LdapContext context, final LdapQuery query, final SearchResultMapper<T> mapper) throws NamingException {
+		final NamingEnumeration<SearchResult> results = executeSearch(context, query);
+		try {
+			return results.hasMore() ? mapper.mapSearchResult(results.next()) : null;
+		} finally {
+			closeQuietly(results);
+		}
+	}
+	
+	private <T> List<T> list(final LdapContext context, final LdapQuery query,
+			final SearchResultMapper<T> mapper) throws NamingException, IOException {
+		// store the original pageSize for the duration of the processing
+		final Integer pageSize = this.pageSize;
+		if (pageSize != null) {
+			context.setRequestControls(new Control[] {
+				new PagedResultsControl(pageSize, Control.NONCRITICAL)
+			});
+		}
+		
+		final List<T> list = Lists.newArrayList();
+		
+		byte[] cookie;
+		do {
+			cookie = null;
+			
+			final NamingEnumeration<SearchResult> results = executeSearch(context, query);
+			try {
+				while (results.hasMore()) {
+					final T item = mapper.mapSearchResult(results.next());
+					if (item != null) {
+						list.add(item);
+					}
+				}
+			} catch (final SizeLimitExceededException e) {
+				LOGGER.warn("Exceeded LDAP search result size limit - will continue with available results", e);
+			} finally {
+				closeQuietly(results);
+			}
+			
+			if (pageSize != null) {
+				for (Control control: context.getResponseControls()) {
+					if (control instanceof PagedResultsResponseControl) {
+						final PagedResultsResponseControl pagedResultsResponseControl = (PagedResultsResponseControl) control;
+						cookie = pagedResultsResponseControl.getCookie();
+						
+						context.setRequestControls(new Control[] {
+								new PagedResultsControl(pageSize, cookie, Control.NONCRITICAL)
+						});
+					}
+				}
+			}
+		} while (cookie != null);
+		
+		return list;
 	}
 	
 	private NamingEnumeration<SearchResult> executeSearch(final LdapContext context, final LdapQuery query) throws NamingException {
@@ -111,8 +126,8 @@ public class DefaultLdapConnection implements LdapConnection {
 		return context.search(query.getName(), query.getFilter().toString(), searchControls);
 	}
 	
-	private LdapContext createLdapContext(final Control... connCtls) throws NamingException {
-		return new InitialLdapContext(environment, connCtls);
+	private LdapContext createLdapContext() throws NamingException {
+		return new InitialLdapContext(environment, null);
 	}
 	
 	private void closeQuietly(final LdapContext context) {
@@ -122,8 +137,8 @@ public class DefaultLdapConnection implements LdapConnection {
 		
 		try {
 			context.close();
-		} catch (NamingException e) {
-			e.printStackTrace(); // TODO: LOGGER
+		} catch (final NamingException e) {
+			LOGGER.debug("Unable to close context", e);
 		}
 	}
 	
@@ -134,8 +149,8 @@ public class DefaultLdapConnection implements LdapConnection {
 		
 		try {
 			enumeration.close();
-		} catch (NamingException e) {
-			e.printStackTrace(); // TODO: LOGGER
+		} catch (final NamingException e) {
+			LOGGER.debug("Unable to close enumeration", e);
 		}
 	}
 }
