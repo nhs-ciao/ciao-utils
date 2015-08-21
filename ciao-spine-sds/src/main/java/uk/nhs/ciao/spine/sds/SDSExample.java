@@ -69,8 +69,7 @@ public class SDSExample {
 				
 				connection = new CamelLdapConnection(producerTemplate, beanRef);
 			} else {
-				final InitialLdapContext context = new InitialLdapContext(env, null);
-				connection = new DefaultLdapConnection(context);
+				connection = new DefaultLdapConnection(env);
 			}
 			
 			connection.enableRequestPaging(500);
