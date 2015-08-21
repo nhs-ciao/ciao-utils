@@ -13,6 +13,8 @@ import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.DefaultProducerTemplate;
 import org.apache.camel.impl.SimpleRegistry;
 
+import uk.nhs.ciao.spine.sds.SDSSpineEndpointAddressRepository.AccreditedSystemSelectionStrategy;
+import uk.nhs.ciao.spine.sds.SDSSpineEndpointAddressRepository.MessageHandlingServiceSelectionStrategy;
 import uk.nhs.ciao.spine.sds.ldap.CamelLdapConnection;
 import uk.nhs.ciao.spine.sds.ldap.DefaultLdapConnection;
 import uk.nhs.ciao.spine.sds.ldap.LdapConnection;
@@ -94,7 +96,14 @@ public class SDSExample {
 	
 	public SDSExample(final SpineDirectoryService sds) throws NamingException {
 		this.sds = Preconditions.checkNotNull(sds);
-		this.repository = new SDSSpineEndpointAddressRepository(sds);
+		
+		final AccreditedSystemSelectionStrategy accreditedSystemSelectionStrategy = new AccreditedSystemSelectionStrategy();
+		accreditedSystemSelectionStrategy.setSortByDateApproved();
+		
+		final MessageHandlingServiceSelectionStrategy messageHandlingServiceSelectionStrategy = new MessageHandlingServiceSelectionStrategy();
+		messageHandlingServiceSelectionStrategy.setSortByDateApproved();
+		
+		this.repository = new SDSSpineEndpointAddressRepository(sds, accreditedSystemSelectionStrategy, messageHandlingServiceSelectionStrategy);
 	}
 	
 	private void run() throws Exception {
