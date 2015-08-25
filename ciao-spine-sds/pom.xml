@@ -11,6 +11,8 @@
 		<ciao.core.version>0.0.1-SNAPSHOT</ciao.core.version>
 		<ciao.skipBinArchive>false</ciao.skipBinArchive>
 		<ciao.addClasspath>true</ciao.addClasspath>
+		
+		<apacheds.version>1.5.7</apacheds.version>
   </properties>
 
   <name>ciao-spine-sds</name>
@@ -38,21 +40,54 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
 		</dependency>
+		
+		<!-- Test dependencies -->
+		
 		<!-- Apache DS -->
 		<dependency>
 			<groupId>org.apache.directory.server</groupId>
-			<artifactId>apacheds-all</artifactId>
-			<version>1.5.7</version>
+			<artifactId>apacheds-core</artifactId>
+			<version>${apacheds.version}</version>
 			<scope>test</scope>
-			<exclusions>
-			<!--
-			 shared-ldap-schema module needs to be excluded to avoid multiple schema resources on the classpath
-			-->
-			<exclusion>
-			<groupId>org.apache.directory.shared</groupId>
-			<artifactId>shared-ldap-schema</artifactId>
-			</exclusion>
-			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.directory.server</groupId>
+			<artifactId>apacheds-ldif-partition</artifactId>
+			<version>${apacheds.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.directory.server</groupId>
+			<artifactId>apacheds-jdbm-partition</artifactId>
+			<version>${apacheds.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.directory.server</groupId>
+			<artifactId>apacheds-protocol-ldap</artifactId>
+			<version>${apacheds.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<scope>test</scope>
 		</dependency>
   </dependencies>
   
@@ -64,25 +99,5 @@
 				<version>${ciao.core.version}</version>
 			</dependency>
 		</dependencies>
-		
 	</dependencyManagement>
-	
-	<build>
-		<resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<filtering>true</filtering>
-			</resource>
-		</resources>
-		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<!-- Java 1.7 is required by newer Camel versions -->
-					<source>1.7</source>
-					<target>1.7</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>
