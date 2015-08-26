@@ -37,6 +37,13 @@
 			<groupId>org.apache.directory.server</groupId>
 			<artifactId>apacheds-core</artifactId>
 			<version>${apacheds.version}</version>
+			<exclusions>
+				<exclusion>
+					<!-- Included in JDK -->
+					<artifactId>xml-apis</artifactId>
+					<groupId>xml-apis</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<dependency>
