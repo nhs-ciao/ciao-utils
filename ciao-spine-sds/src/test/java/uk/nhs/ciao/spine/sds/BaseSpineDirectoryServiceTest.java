@@ -12,14 +12,17 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.unitils.reflectionassert.ReflectionAssert;
 
-import com.google.common.collect.Lists;
-
-import uk.nhs.ciao.spine.sds.ldap.DefaultLdapConnection;
 import uk.nhs.ciao.spine.sds.ldap.LdapConnection;
 import uk.nhs.ciao.spine.sds.model.AccreditedSystem;
 import uk.nhs.ciao.spine.sds.model.MessageHandlingService;
 
-public class SpineDirectoryServiceTest {
+/**
+ * Tests to run against a {@link SpineDirectoryService} backed by an {@link LdapConnection} (provided
+ * by a concrete subclass)
+ * 
+ * @see #setupConnection(EmbeddedLDAPServer)
+ */
+public abstract class BaseSpineDirectoryServiceTest {
 	private static EmbeddedLDAPServer server;
 	
 	@BeforeClass
@@ -38,10 +41,15 @@ public class SpineDirectoryServiceTest {
 	private SpineDirectoryService sds;
 	
 	@Before
-	public void setup() {
-		connection = new DefaultLdapConnection(server.getLdapEnvironment());
+	public void setup() throws Exception {
+		connection = setupConnection(server);
 		sds = new SpineDirectoryService(connection);
 	}
+	
+	/**
+	 * Creates the LdapConnection to use during tests (invoked during test setup)
+	 */
+	protected abstract LdapConnection setupConnection(final EmbeddedLDAPServer server) throws Exception;
 	
 	@Test
 	public void testFindAllAccreditedSystems() throws NamingException, IOException {

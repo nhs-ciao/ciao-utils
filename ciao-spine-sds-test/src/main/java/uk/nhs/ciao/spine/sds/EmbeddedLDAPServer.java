@@ -4,10 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 import javax.naming.Context;
+import javax.naming.NamingException;
+import javax.naming.ldap.Control;
+import javax.naming.ldap.InitialLdapContext;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.directory.server.constants.ServerDNConstants;
@@ -222,6 +226,19 @@ public class EmbeddedLDAPServer {
 		env.put("com.sun.jndi.ldap.connect.pool", "true");
 
 		return env;
+	}
+	
+	/**
+	 * Creates a new InitialLdapContext configured for use with this server
+	 * 
+	 * @param connCtls The initial connection controls to use
+	 * @return A configured context
+	 * @throws NamingException If the context could not be created
+	 * @see #getLdapEnvironment()
+	 */
+	public InitialLdapContext createInitialLdapContext(final Control... connCtls) throws NamingException {
+		final Hashtable<Object, Object> env = new Hashtable<Object, Object>(getLdapEnvironment());
+		return new InitialLdapContext(env, connCtls);
 	}
 	
 	/**

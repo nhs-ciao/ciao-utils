@@ -1,5 +1,7 @@
 package uk.nhs.ciao.spine.sds.ldap;
 
+import static uk.nhs.ciao.spine.sds.ldap.LdapUtils.closeQuietly;
+
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.List;
@@ -128,29 +130,5 @@ public class DefaultLdapConnection implements LdapConnection {
 	
 	private LdapContext createLdapContext() throws NamingException {
 		return new InitialLdapContext(environment, null);
-	}
-	
-	private void closeQuietly(final LdapContext context) {
-		if (context == null) {
-			return;
-		}
-		
-		try {
-			context.close();
-		} catch (final NamingException e) {
-			LOGGER.debug("Unable to close context", e);
-		}
-	}
-	
-	private void closeQuietly(final NamingEnumeration<?> enumeration) {
-		if (enumeration == null) {
-			return;
-		}
-		
-		try {
-			enumeration.close();
-		} catch (final NamingException e) {
-			LOGGER.debug("Unable to close enumeration", e);
-		}
 	}
 }
