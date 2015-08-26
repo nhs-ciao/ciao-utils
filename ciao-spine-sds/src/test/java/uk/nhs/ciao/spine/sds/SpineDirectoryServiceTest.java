@@ -36,7 +36,12 @@ public class SpineDirectoryServiceTest {
 	}
 	
 	@Test
-	public void testFindAccreditedSystems() throws NamingException, IOException {
-		Assert.assertEquals(2, sds.findAccreditedSystems().list().size());
+	public void testFindAllAccreditedSystems() throws NamingException, IOException {
+		Assert.assertEquals(4, sds.findAccreditedSystems().list().size());
+	}
+	
+	@Test
+	public void testFindAllMessageHandlingServices() throws NamingException, IOException {
+		Assert.assertEquals(4, sds.findMessageHandlingServices().list().size());
 	}
 }

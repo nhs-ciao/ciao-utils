@@ -53,7 +53,8 @@ public class EmbeddedLDAPServerTest {
 	 */
 	@Test
 	public void testConnection() throws NamingException {
-		final NamingEnumeration<SearchResult> results = context.search("ou=Services,o=nhs", "(objectclass=nhsAs)", null);
+		final NamingEnumeration<SearchResult> results = context.search("ou=Services,o=nhs",
+				"(&(objectclass=nhsAs)(uniqueIdentifier=asid-1))", null);
 		int count = 0;
 		try {
 			while (results.hasMore()) {
@@ -64,7 +65,7 @@ public class EmbeddedLDAPServerTest {
 			closeQuietly(results);
 		}
 		
-		Assert.assertEquals(2, count);
+		Assert.assertEquals(1, count);
 	}
 
 	private void closeQuietly(final NamingEnumeration<SearchResult> results) {

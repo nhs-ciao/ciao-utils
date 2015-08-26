@@ -18,3 +18,64 @@ nhsIDCode: ods-code-1
 nhsMHSPartyKey: party-key-1
 uniqueIdentifier: asid-2
 
+dn: uniqueIdentifier=asid-3,ou=Services,o=nhs
+objectClass: nhsAs
+objectClass: top
+nhsAsSvcIA: service-1:action-2
+nhsDateApproved: 20150824121000
+nhsIDCode: ods-code-1
+nhsMHSPartyKey: party-key-1
+uniqueIdentifier: asid-3
+
+dn: uniqueIdentifier=asid-4,ou=Services,o=nhs
+objectClass: nhsAs
+objectClass: top
+nhsAsSvcIA: service-1:action-2
+nhsDateApproved: 20150824121000
+nhsIDCode: ods-code-1
+nhsMHSPartyKey: party-key-2
+uniqueIdentifier: asid-4
+
+
+
+
+
+dn: uniqueIdentifier=mhs-1,ou=Services,o=nhs
+objectClass: nhsMHS
+objectClass: top
+nhsMhsSvcIA: service-1:action-2
+nhsDateApproved: 20150824121000
+nhsIDCode: ods-code-2
+nhsMHSPartyKey: party-key-2
+nhsMhsCPAId: cpa-1
+uniqueIdentifier: mhs-1
+
+dn: uniqueIdentifier=mhs-2,ou=Services,o=nhs
+objectClass: nhsMHS
+objectClass: top
+nhsMhsSvcIA: service-1:action-2
+nhsDateApproved: 20150824120000
+nhsIDCode: ods-code-2
+nhsMHSPartyKey: party-key-2
+nhsMhsCPAId: cpa-2
+uniqueIdentifier: mhs-2
+
+dn: uniqueIdentifier=mhs-3,ou=Services,o=nhs
+objectClass: nhsMHS
+objectClass: top
+nhsMhsSvcIA: service-1:action-2
+nhsDateApproved: 20150824120000
+nhsIDCode: ods-code-2
+nhsMHSPartyKey: party-key-1
+nhsMhsCPAId: cpa-1
+uniqueIdentifier: mhs-3
+
+dn: uniqueIdentifier=mhs-4,ou=Services,o=nhs
+objectClass: nhsMHS
+objectClass: top
+nhsMhsSvcIA: service-1:action-1
+nhsDateApproved: 20150824120000
+nhsIDCode: ods-code-2
+nhsMHSPartyKey: party-key-1
+nhsMhsCPAId: cpa-1
+uniqueIdentifier: mhs-4
