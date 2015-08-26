@@ -50,6 +50,7 @@ public class SpineDirectoryServiceTest {
 	
 	@Test
 	public void testFindAllMessageHandlingServices() throws NamingException, IOException {
+		connection.enableRequestPaging(2); // trigger multiple pages
 		Assert.assertEquals(4, sds.findMessageHandlingServices().list().size());
 	}
 	
@@ -79,6 +80,8 @@ public class SpineDirectoryServiceTest {
 	
 	@Test
 	public void testFindMessageHandlingService() throws NamingException, IOException {
+		connection.disableRequestPaging();
+		
 		final MessageHandlingService expected = new MessageHandlingService();
 		expected.setUniqueIdentifier("mhs-4");
 		expected.setNhsDateApproved("20150824120000");
