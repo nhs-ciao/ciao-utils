@@ -5,30 +5,21 @@
 		<artifactId>ciao-parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
   </parent>
-  <artifactId>ciao-spine-sds</artifactId>
+  <artifactId>ciao-spine-sds-test</artifactId>
   
   <properties>
-		<ciao.core.version>0.0.1-SNAPSHOT</ciao.core.version>
-		<ciao.skipBinArchive>false</ciao.skipBinArchive>
-		<ciao.addClasspath>true</ciao.addClasspath>
+		<apacheds.version>1.5.7</apacheds.version>
   </properties>
 
   <name>ciao-spine-sds</name>
-  <description>Utility classes for accessing the Spine Directory Service - for use within CIAO CIPs</description>
+  <description>Utility classes for testing with the ciao-spine-sds module</description>
   
   <dependencies>
   		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>ciao-core</artifactId>
-		</dependency>
-		<dependency>
-		    <groupId>org.apache.camel</groupId>
-		    <artifactId>camel-ldap</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 		</dependency>
+  
 		<!-- logging -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -41,10 +32,29 @@
 		
 		<!-- Test dependencies -->
 		
+		<!-- Apache DS -->
 		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>ciao-spine-sds-test</artifactId>
-			<scope>test</scope>
+			<groupId>org.apache.directory.server</groupId>
+			<artifactId>apacheds-core</artifactId>
+			<version>${apacheds.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.directory.server</groupId>
+			<artifactId>apacheds-ldif-partition</artifactId>
+			<version>${apacheds.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.directory.server</groupId>
+			<artifactId>apacheds-jdbm-partition</artifactId>
+			<version>${apacheds.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.directory.server</groupId>
+			<artifactId>apacheds-protocol-ldap</artifactId>
+			<version>${apacheds.version}</version>
 		</dependency>
 		
 		<dependency>
@@ -58,21 +68,10 @@
 			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
 		</dependency>
-  </dependencies>
-  
-  <dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>${project.groupId}</groupId>
-				<artifactId>ciao-core</artifactId>
-				<version>${ciao.core.version}</version>
-			</dependency>
-			
-			<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>ciao-spine-sds-test</artifactId>
-			<version>${project.version}</version>
+		
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
 		</dependency>
-		</dependencies>
-	</dependencyManagement>
+  </dependencies>
 </project>
