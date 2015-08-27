@@ -49,6 +49,9 @@ nhsIDCode: ods-code-2
 nhsMHSPartyKey: party-key-2
 nhsMhsCPAId: cpa-1
 uniqueIdentifier: mhs-1
+nhsMHSPersistDuration: PT9M
+nhsMHSRetries: 3
+nhsMHSRetryInterval: PT2M
 
 dn: uniqueIdentifier=mhs-2,ou=Services,o=nhs
 objectClass: nhsMHS
@@ -59,6 +62,9 @@ nhsIDCode: ods-code-2
 nhsMHSPartyKey: party-key-2
 nhsMhsCPAId: cpa-2
 uniqueIdentifier: mhs-2
+nhsMHSPersistDuration: PT10M
+nhsMHSRetries: 2
+nhsMHSRetryInterval: PT4M
 
 dn: uniqueIdentifier=mhs-3,ou=Services,o=nhs
 objectClass: nhsMHS
@@ -69,6 +75,9 @@ nhsIDCode: ods-code-2
 nhsMHSPartyKey: party-key-1
 nhsMhsCPAId: cpa-1
 uniqueIdentifier: mhs-3
+nhsMHSPersistDuration: PT9M
+nhsMHSRetries: 3
+nhsMHSRetryInterval: PT2M
 
 dn: uniqueIdentifier=mhs-4,ou=Services,o=nhs
 objectClass: nhsMHS
@@ -79,3 +88,6 @@ nhsIDCode: ods-code-2
 nhsMHSPartyKey: party-key-1
 nhsMhsCPAId: cpa-1
 uniqueIdentifier: mhs-4
+nhsMHSPersistDuration: PT9M
+nhsMHSRetries: 3
+nhsMHSRetryInterval: PT2M

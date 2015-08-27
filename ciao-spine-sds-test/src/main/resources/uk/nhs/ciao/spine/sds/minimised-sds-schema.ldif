@@ -65,6 +65,33 @@ m-name: nhsMhsCPAId
 m-syntax: 1.3.6.1.4.1.1466.115.121.1.15
 m-singleValue: TRUE
 
+dn: m-oid=1.2.826.0.1285.0.2.1.87, ou=attributetypes, cn=sds, ou=schema
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-oid: 1.2.826.0.1285.0.2.1.87
+m-name: nhsMHSPersistDuration
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.15
+m-singleValue: TRUE
+
+dn: m-oid=1.2.826.0.1285.0.2.1.88, ou=attributetypes, cn=sds, ou=schema
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-oid: 1.2.826.0.1285.0.2.1.88
+m-name: nhsMHSRetries
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.15
+m-singleValue: TRUE
+
+dn: m-oid=1.2.826.0.1285.0.2.1.89, ou=attributetypes, cn=sds, ou=schema
+objectclass: metaAttributeType
+objectclass: metaTop
+objectclass: top
+m-oid: 1.2.826.0.1285.0.2.1.89
+m-name: nhsMHSRetryInterval
+m-syntax: 1.3.6.1.4.1.1466.115.121.1.15
+m-singleValue: TRUE
+
 dn: ou=comparators, cn=sds, ou=schema
 objectclass: organizationalUnit
 objectclass: top
@@ -131,6 +158,9 @@ m-must: nhsMhsCPAId
 m-must: nhsMHSPartyKey
 m-must: nhsMhsSvcIA
 m-must: uniqueIdentifier
+m-may: nhsMHSPersistDuration
+m-may: nhsMHSRetries
+m-may: nhsMHSRetryInterval
 
 dn: ou=syntaxcheckers, cn=sds, ou=schema
 objectclass: organizationalUnit

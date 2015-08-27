@@ -12,7 +12,7 @@ public class MessageHandlingService {
 	private final Set<String> nhsMhsSvcIAs = Sets.newLinkedHashSet();
 	private String nhsMHSPartyKey;
 	private String nhsIDCode;
-	private String nhsMhsCPAId;
+	private MHSContractProperties contractProperties;
 	private String nhsDateApproved;
 	
 	public String getUniqueIdentifier() {
@@ -50,12 +50,16 @@ public class MessageHandlingService {
 		this.nhsIDCode = nhsIDCode;
 	}
 	
-	public String getNhsMhsCPAId() {
-		return nhsMhsCPAId;
+	public MHSContractProperties getContractProperties() {
+		return contractProperties;
 	}
 	
-	public void setNhsMhsCPAId(final String nhsMhsCPAId) {
-		this.nhsMhsCPAId = nhsMhsCPAId;
+	public void setContractProperties(final MHSContractProperties contractProperties) {
+		this.contractProperties = contractProperties;
+	}
+	
+	public String getNhsMhsCPAId() {
+		return contractProperties == null ? null : contractProperties.getUniqueIdentifier();
 	}
 	
 	public String getNhsDateApproved() {
@@ -90,7 +94,7 @@ public class MessageHandlingService {
 				.add("nhsMhsSvcIAs", nhsMhsSvcIAs)
 				.add("nhsMHSPartyKey", nhsMHSPartyKey)
 				.add("nhsIDCode", nhsIDCode)
-				.add("nhsMhsCPAId", nhsMhsCPAId)
+				.add("nhsMhsCPAId", contractProperties)
 				.add("nhsDateApproved", nhsDateApproved)
 				.toString();
 	}

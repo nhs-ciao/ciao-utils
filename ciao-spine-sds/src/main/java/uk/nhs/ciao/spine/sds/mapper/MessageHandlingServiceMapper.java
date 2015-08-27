@@ -5,6 +5,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import uk.nhs.ciao.spine.sds.ldap.SearchResultMapper;
+import uk.nhs.ciao.spine.sds.model.MHSContractProperties;
 import uk.nhs.ciao.spine.sds.model.MessageHandlingService;
 
 public class MessageHandlingServiceMapper extends SearchResultMapper<MessageHandlingService> {
@@ -27,9 +28,20 @@ public class MessageHandlingServiceMapper extends SearchResultMapper<MessageHand
 		messageHandlingService.setNhsMhsSvcIAs(values(attributes, "nhsMhsSvcIA"));
 		messageHandlingService.setNhsMHSPartyKey(value(attributes, "nhsMHSPartyKey"));
 		messageHandlingService.setNhsIDCode(value(attributes, "nhsIDCode"));
-		messageHandlingService.setNhsMhsCPAId(value(attributes, "nhsMhsCPAId"));
+		messageHandlingService.setContractProperties(contractProperties(attributes));
 		messageHandlingService.setNhsDateApproved(value(attributes, "nhsDateApproved"));
 		
 		return messageHandlingService;
+	}
+	
+	private MHSContractProperties contractProperties(final Attributes attributes) throws NamingException {
+		final MHSContractProperties contractProperties = new MHSContractProperties();
+		
+		contractProperties.setUniqueIdentifier(value(attributes, "nhsMhsCPAId"));
+		contractProperties.setNhsMhsPersistduration(value(attributes, "nhsMhsPersistduration"));
+		contractProperties.setNhsMhsRetries(value(attributes, "nhsMhsRetries"));
+		contractProperties.setNhsMhsRetryInterval(value(attributes, "nhsMhsRetryInterval"));
+		
+		return contractProperties;
 	}
 }

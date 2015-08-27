@@ -13,6 +13,9 @@ public class MessageHandlingServiceQuery extends SDSQuery<MessageHandlingService
 	private String nhsIDCode;
 	private String nhsMHSPartyKey;
 	private String nhsDateApproved;
+	private String nhsMhsPersistduration;
+	private String nhsMhsRetries;
+	private String nhsMhsRetryInterval;
 	
 	public MessageHandlingServiceQuery(final LdapConnection connection) {
 		super(connection, MessageHandlingServiceMapper.getInstance());
@@ -26,6 +29,9 @@ public class MessageHandlingServiceQuery extends SDSQuery<MessageHandlingService
 		this.nhsIDCode = null;
 		this.nhsMHSPartyKey = null;
 		this.nhsDateApproved = null;
+		this.nhsMhsPersistduration = null;
+		this.nhsMhsRetries = null;
+		this.nhsMhsRetryInterval = null;
 	}
 	
 	public MessageHandlingServiceQuery withUniqueIdentifier(final String uniqueIdentifier) {
@@ -58,6 +64,21 @@ public class MessageHandlingServiceQuery extends SDSQuery<MessageHandlingService
 		return this;
 	}
 	
+	public MessageHandlingServiceQuery withNhsMhsPersistduration(final String nhsMhsPersistduration) {
+		this.nhsMhsPersistduration = nhsMhsPersistduration;
+		return this;
+	}
+	
+	public MessageHandlingServiceQuery withNhsMhsRetries(final String nhsMhsRetries) {
+		this.nhsMhsRetries = nhsMhsRetries;
+		return this;
+	}
+	
+	public MessageHandlingServiceQuery withNhsMhsRetryInterval(final String nhsMhsRetryInterval) {
+		this.nhsMhsRetryInterval = nhsMhsRetryInterval;
+		return this;
+	}
+	
 	@Override
 	protected LdapQuery getLdapQuery() {
 		final String name = "ou=Services, o=nhs";
@@ -69,10 +90,14 @@ public class MessageHandlingServiceQuery extends SDSQuery<MessageHandlingService
 			.add("nhsMhsCPAId", nhsMhsCPAId)
 			.add("nhsIDCode", nhsIDCode)
 			.add("nhsMHSPartyKey", nhsMHSPartyKey)
-			.add("nhsDateApproved", nhsDateApproved);
+			.add("nhsDateApproved", nhsDateApproved)
+			.add("nhsMhsPersistduration", nhsMhsPersistduration)
+			.add("nhsMhsRetries", nhsMhsRetries)
+			.add("nhsMhsRetryInterval", nhsMhsRetryInterval);
 		
 		final String[] attributeNames = new String[]{
-				"uniqueIdentifier", "nhsMhsSvcIA", "nhsMhsCPAId", "nhsIDCode", "nhsMHSPartyKey", "nhsDateApproved"};
+				"uniqueIdentifier", "nhsMhsSvcIA", "nhsMhsCPAId", "nhsIDCode", "nhsMHSPartyKey", "nhsDateApproved",
+				"nhsMhsPersistduration", "nhsMhsRetries", "nhsMhsRetryInterval"};
 		
 		return new LdapQuery(name, filter, attributeNames);
 	}

@@ -14,6 +14,7 @@ import org.unitils.reflectionassert.ReflectionAssert;
 
 import uk.nhs.ciao.spine.sds.ldap.LdapConnection;
 import uk.nhs.ciao.spine.sds.model.AccreditedSystem;
+import uk.nhs.ciao.spine.sds.model.MHSContractProperties;
 import uk.nhs.ciao.spine.sds.model.MessageHandlingService;
 
 /**
@@ -94,21 +95,29 @@ public abstract class BaseSpineDirectoryServiceTest {
 		expected.setUniqueIdentifier("mhs-4");
 		expected.setNhsDateApproved("20150824120000");
 		expected.setNhsIDCode("ods-code-2");
-		expected.setNhsMhsCPAId("cpa-1");
 		expected.setNhsMHSPartyKey("party-key-1");
 		expected.setNhsMhsSvcIAs(Arrays.asList("service-1:action-1"));
 
+		final MHSContractProperties contractProperties = new MHSContractProperties();
+		contractProperties.setUniqueIdentifier("cpa-1");
+		contractProperties.setNhsMhsPersistduration("PT9M");
+		contractProperties.setNhsMhsRetries("3");
+		contractProperties.setNhsMhsRetryInterval("PT2M");
+		
+		expected.setContractProperties(contractProperties);
+		
 		final MessageHandlingService actual = sds.findMessageHandlingServices()
 				.withUniqueIdentifier(expected.getUniqueIdentifier())
 				.withNhsDateApproved(expected.getNhsDateApproved())
 				.withNhsIDCode(expected.getNhsIDCode())
-				.withNhsMhsCPAId(expected.getNhsMhsCPAId())
+				.withNhsMhsCPAId(contractProperties.getUniqueIdentifier())
 				.withNhsMHSPartyKey(expected.getNhsMHSPartyKey())
 				.withNhsMhsSvcIA(expected.getNhsMhsSvcIAs().iterator().next())
 				.get();
 		
 		Assert.assertNotNull(actual);
 		Assert.assertEquals(expected, actual);
+		Assert.assertEquals(contractProperties, actual.getContractProperties());
 		ReflectionAssert.assertReflectionEquals(expected, actual);
 	}
 }
