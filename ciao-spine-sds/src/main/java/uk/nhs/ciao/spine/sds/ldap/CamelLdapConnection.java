@@ -27,6 +27,15 @@ public class CamelLdapConnection implements LdapConnection {
 	}
 	
 	@Override
+	public void setPageSize(final int pageSize) {
+		if (pageSize > 0) {
+			enableRequestPaging(pageSize);
+		} else {
+			disableRequestPaging();
+		}
+	}
+	
+	@Override
 	public void enableRequestPaging(final int pageSize) {
 		this.pageSize = pageSize;
 	}

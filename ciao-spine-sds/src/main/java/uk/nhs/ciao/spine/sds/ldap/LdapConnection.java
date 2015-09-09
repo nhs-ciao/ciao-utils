@@ -6,7 +6,9 @@ import java.util.List;
 import javax.naming.NamingException;
 
 public interface LdapConnection {
-
+	// for spring
+	public abstract void setPageSize(int pageSize);
+	
 	public abstract void enableRequestPaging(int pageSize);
 
 	public abstract void disableRequestPaging();
