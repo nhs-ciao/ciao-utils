@@ -34,13 +34,14 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
+		
+		
+		<!-- Test dependencies -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-simple</artifactId>
+			<scope>test</scope>
 		</dependency>
-		
-		<!-- Test dependencies -->
-		
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>ciao-spine-sds-test</artifactId>
