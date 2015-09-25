@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<DTSControl>
+    <Version>1.0</Version>
+    <AddressType>DTS</AddressType>
+    <MessageType>Data</MessageType>
+    <From_DTS>phoenx1HC1</From_DTS>
+    <To_DTS>phoenx5HC1</To_DTS>
+    <Subject>UCDashboardTPP</Subject>
+    <LocalId>ucdashboardfeedUCDashboardTPP1013843588B710-8E22-11E1-AF48-010000009230.xml</LocalId>
+    <DTSId/>
+    <Compress>Y</Compress>
+    <Encrypted>N</Encrypted>
+    <WorkflowId>UCD_OOHWIC_V1</WorkflowId>
+    <DataCheckSum/>
+    <IsCompressed>Y</IsCompressed>
+	<StatusRecord>
+		<DateTime>20120424163750</DateTime>
+		<Event>TRANSFER</Event>
+		<Status>SUCCESS</Status>
+		<StatusCode>00</StatusCode>
+		<Description></Description>
+	</StatusRecord>
+</DTSControl>
