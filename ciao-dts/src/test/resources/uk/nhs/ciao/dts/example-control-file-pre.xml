@@ -4,14 +4,14 @@
     <Version>1.0</Version>
     <AddressType>DTS</AddressType>
     <MessageType>Data</MessageType>
-    <From_DTS>phoenx1HC1</From_DTS>
-    <To_DTS>phoenx5HC1</To_DTS>
-    <Subject>UCDashboardTPP</Subject>
-    <LocalId>ucdashboardfeedUCDashboardTPP1013843588B710-8E22-11E1-AF48-010000009230.xml</LocalId>
+    <From_DTS>sample2HT3</From_DTS>
+    <To_DTS>sample2HT3</To_DTS>
+    <Subject>UCDashboardABC</Subject>
+    <LocalId>ucdashboardfeedUCDashboardABC101384e653d85b-0aba-42d5-8d2c-9f8307cdacd0.xml</LocalId>
     <DTSId/>
     <Compress>Y</Compress>
     <Encrypted>N</Encrypted>
-    <WorkflowId>UCD_OOHWIC_V1</WorkflowId>
+    <WorkflowId>WORKFLOW_ID_123</WorkflowId>
     <DataCheckSum/>
     <IsCompressed>N</IsCompressed>
 </DTSControl>
