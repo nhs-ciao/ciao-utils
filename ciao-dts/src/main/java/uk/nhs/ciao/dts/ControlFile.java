@@ -16,6 +16,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name="DTSControl")
@@ -195,6 +196,32 @@ public class ControlFile {
 	
 	private <T> T copyProperty(final T original, final T prototype, final boolean overwrite) {
 		return (prototype != null && (original == null || overwrite)) ? prototype : original;
+	}
+	
+	/**
+	 * Generates default values for required properties which
+	 * have not been specified
+	 */
+	public void applyDefaults() {
+		if (Strings.isNullOrEmpty(version)) {
+			version = "1.0";
+		}
+		
+		if (compress == null) {
+			compress = false;
+		}
+		
+		if (encrypted == null) {
+			encrypted = false;
+		}
+		
+		if (compressed == null) {
+			compressed = false;
+		}
+		
+		if (statusRecord != null) {
+			statusRecord.applyDefaults();
+		}
 	}
 
 	public String getVersion() {

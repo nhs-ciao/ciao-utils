@@ -53,6 +53,15 @@ public class StatusRecord {
 		return (prototype != null && (original == null || overwrite)) ? prototype : original;
 	}
 	
+	/**
+	 * Generates default values for required properties which
+	 * have not been specified
+	 */
+	public void applyDefaults() {
+		if (dateTime == null) {
+			dateTime = new LocalDateTime();
+		}
+	}
 	
 	public LocalDateTime getDateTime() {
 		return dateTime;
