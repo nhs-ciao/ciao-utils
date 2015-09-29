@@ -153,6 +153,49 @@ public class ControlFile {
 	 */
 	@XmlElement(name="StatusRecord")
 	private StatusRecord statusRecord;
+	
+	
+	/**
+	 * Copies properties from the specified prototype control file
+	 * 
+	 * @param prototype The prototype to copy from
+	 * @param overwrite true if non-empty properties should be overwritten, or false if the existing values should be kept
+	 */
+	public void copyFrom(final ControlFile prototype, final boolean overwrite) {
+		if (prototype == null) {
+			return;
+		}
+
+		version = copyProperty(version, prototype.version, overwrite);
+		addressType = copyProperty(addressType, prototype.addressType, overwrite);
+		messageType = copyProperty(messageType, prototype.messageType, overwrite);
+		workflowId = copyProperty(workflowId, prototype.workflowId, overwrite);
+		fromESMTP = copyProperty(fromESMTP, prototype.fromESMTP, overwrite);
+		fromDTS = copyProperty(fromDTS, prototype.fromDTS, overwrite);
+		toESMTP = copyProperty(toESMTP, prototype.toESMTP, overwrite);
+		toDTS = copyProperty(toDTS, prototype.toDTS, overwrite);
+		subject = copyProperty(subject, prototype.subject, overwrite);
+		localId = copyProperty(localId, prototype.localId, overwrite);
+		DTSId = copyProperty(DTSId, prototype.DTSId, overwrite);
+		processId = copyProperty(processId, prototype.processId, overwrite);
+		compress = copyProperty(compress, prototype.compress, overwrite);
+		encrypted = copyProperty(encrypted, prototype.encrypted, overwrite);
+		compressed = copyProperty(compressed, prototype.compressed, overwrite);
+		dataChecksum = copyProperty(dataChecksum, prototype.dataChecksum, overwrite);
+		partnerId = copyProperty(partnerId, prototype.partnerId, overwrite);
+		
+		if (prototype.statusRecord != null) {
+			if (statusRecord == null) {
+				statusRecord = new StatusRecord();
+			}
+			
+			statusRecord.copyFrom(prototype.statusRecord, overwrite);
+		}
+	}
+	
+	private <T> T copyProperty(final T original, final T prototype, final boolean overwrite) {
+		return (prototype != null && (original == null || overwrite)) ? prototype : original;
+	}
 
 	public String getVersion() {
 		return version;

@@ -30,6 +30,30 @@ public class StatusRecord {
 	@XmlElement(name="Description")
 	private String description;
 	
+	
+	/**
+	 * Copies properties from the specified prototype status record
+	 * 
+	 * @param prototype The prototype to copy from
+	 * @param overwrite true if non-empty properties should be overwritten, or false if the existing values should be kept
+	 */
+	public void copyFrom(final StatusRecord prototype, final boolean overwrite) {
+		if (prototype == null) {
+			return;
+		}
+
+		dateTime = copyProperty(dateTime, prototype.dateTime, overwrite);
+		event = copyProperty(event, prototype.event, overwrite);
+		status = copyProperty(status, prototype.status, overwrite);
+		statusCode = copyProperty(statusCode, prototype.statusCode, overwrite);
+		description = copyProperty(description, prototype.description, overwrite);
+	}
+	
+	private <T> T copyProperty(final T original, final T prototype, final boolean overwrite) {
+		return (prototype != null && (original == null || overwrite)) ? prototype : original;
+	}
+	
+	
 	public LocalDateTime getDateTime() {
 		return dateTime;
 	}
