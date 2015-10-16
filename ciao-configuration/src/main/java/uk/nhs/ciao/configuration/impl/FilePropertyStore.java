@@ -51,10 +51,9 @@ public class FilePropertyStore implements PropertyStore {
 		}
 	}
 	
-	public boolean versionExists(String cip_name, String version) throws CIAOConfigurationException {
+	public boolean versionExists(String cip_name, String version, String classifier) throws CIAOConfigurationException {
 		boolean exists = false;
-		StringBuffer configFileName = new StringBuffer();
-		configFileName.append(this.filePath).append('/').append(cip_name).append("-").append(version).append(".properties");
+		String configFileName = makeConfigFilename(cip_name, version, classifier);
 		logger.debug("Checking if config file exists at path: {}", configFileName);
 		File f = new File(configFileName.toString());
 		if (f.exists()) {
@@ -66,13 +65,12 @@ public class FilePropertyStore implements PropertyStore {
 		return exists;
 	}
 
-	public CipProperties setDefaults(String cip_name, String version, Properties defaultConfig) throws CIAOConfigurationException {
+	public CipProperties setDefaults(String cip_name, String version, String classifier, Properties defaultConfig) throws CIAOConfigurationException {
 		// First, check the properties have not already been set
-		if (versionExists(cip_name, version)) {
+		if (versionExists(cip_name, version, classifier)) {
 			throw new CIAOConfigurationException("The properties file has already been created for this CIP version");
 		}
-		StringBuffer configFileName = new StringBuffer();
-		configFileName.append(this.filePath).append('/').append(cip_name).append("-").append(version).append(".properties");
+		String configFileName = makeConfigFilename(cip_name, version, classifier);
 		File f = new File(configFileName.toString());
 		// Create parent directories if required
 		File parent = f.getParentFile();
@@ -98,9 +96,8 @@ public class FilePropertyStore implements PropertyStore {
 		return store;
 	}
 
-	public CipProperties loadConfig(String cip_name, String version) throws CIAOConfigurationException {
-		StringBuffer configFileName = new StringBuffer();
-		configFileName.append(this.filePath).append('/').append(cip_name).append("-").append(version).append(".properties");
+	public CipProperties loadConfig(String cip_name, String version, String classifier) throws CIAOConfigurationException {
+		String configFileName = makeConfigFilename(cip_name, version, classifier);
 		File f = new File(configFileName.toString());
 		Properties props = new Properties();
 		FileInputStream fis;
@@ -114,5 +111,22 @@ public class FilePropertyStore implements PropertyStore {
 		}
 		
 		return new MemoryCipProperties(cip_name, version, props);
+	}
+	
+	/**
+	 * Builds a filename for our config file using the CIP name, version, and (if it exists) the classifier.
+	 * @param cip_name
+	 * @param version
+	 * @param classifier
+	 * @return String filename
+	 */
+	private String makeConfigFilename(String cip_name, String version, String classifier) {
+		StringBuffer configFileName = new StringBuffer();
+		configFileName.append(this.filePath).append('/').append(cip_name).append("-").append(version);
+		if (classifier != null) {
+			configFileName.append("-").append(classifier);
+		}
+		configFileName.append(".properties");
+		return configFileName.toString();
 	}
 }

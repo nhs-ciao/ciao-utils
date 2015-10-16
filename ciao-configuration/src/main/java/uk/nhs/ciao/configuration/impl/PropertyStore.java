@@ -28,7 +28,7 @@ public interface PropertyStore {
 	 * @return true if the version exists and has values in it, false otherwise
 	 * @throws IOException If the property store cannot be accessed
 	 */
-	public boolean versionExists(String cip_name, String version) throws CIAOConfigurationException;
+	public boolean versionExists(String cip_name, String version, String classifier) throws CIAOConfigurationException;
 	
 	/**
 	 * Load all the configuration keys at the specified path
@@ -36,7 +36,7 @@ public interface PropertyStore {
 	 * @param version Version of CIP
 	 * @return A loaded CipProperties instance matching the specified name and version
 	 */
-	public CipProperties loadConfig(String cip_name, String version) throws CIAOConfigurationException;
+	public CipProperties loadConfig(String cip_name, String version, String classifier) throws CIAOConfigurationException;
 	
 	/**
 	 * Populate the property store with the provided default values
@@ -46,5 +46,5 @@ public interface PropertyStore {
 	 * @throws Exception If unable to set default config values
 	 * @return A CipProperties instance matching the specified name and version and configured with the specified defaults
 	 */
-	public CipProperties setDefaults(String cip_name, String version, Properties defaultConfig) throws CIAOConfigurationException;
+	public CipProperties setDefaults(String cip_name, String version, String classifier, Properties defaultConfig) throws CIAOConfigurationException;
 }

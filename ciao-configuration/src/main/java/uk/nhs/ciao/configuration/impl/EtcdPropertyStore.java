@@ -43,15 +43,15 @@ public class EtcdPropertyStore implements PropertyStore {
 		this.url = url;
 	}
 
-	public boolean versionExists(String cip_name, String version) throws CIAOConfigurationException {
-		StringBuffer path = new StringBuffer();
-		path.append(CIAO_PREFIX).append('/').append(cip_name).append('/').append(version).append('/').append(EXISTENCE_KEY);
+	public boolean versionExists(String cip_name, String version, String classifier) throws CIAOConfigurationException {
+		StringBuffer path = makeConfigPath(cip_name, version, classifier).append(EXISTENCE_KEY);
+		logger.debug("Checking for existence key at path: {}", path);
 		boolean exists = false;
 		EtcdClient etcd = null;
 		try {
 			logger.debug("Attempting to access ETCD at URL: {}", this.url);
 			etcd = new EtcdClient(URI.create(this.url));
-			logger.debug("Looking for ETCD path: {}", path.toString());
+			logger.debug("Looking for ETCD path: {}", path);
 			EtcdKeysResponse val = etcd.get(path.toString()).send().get();
 			logger.debug("Got existence value: {}", val.node.value);
 			if (val.node.value.equals("true")) {
@@ -80,17 +80,16 @@ public class EtcdPropertyStore implements PropertyStore {
 		return exists;
 	}
 
-	public CipProperties setDefaults(String cip_name, String version, Properties defaultConfig) throws CIAOConfigurationException {
+	public CipProperties setDefaults(String cip_name, String version, String classifier, Properties defaultConfig) throws CIAOConfigurationException {
 		// First, check the properties have not already been set
-		if (versionExists(cip_name, version)) {
+		if (versionExists(cip_name, version, classifier)) {
 			throw new CIAOConfigurationException("The ETCD properties have already been initialised for this CIP version");
 		}
 		
 		// Also initialise our active config
 		final CipProperties store = new MemoryCipProperties(cip_name, version, defaultConfig);
 		
-		StringBuffer path = new StringBuffer();
-		path.append(CIAO_PREFIX).append('/').append(cip_name).append('/').append(version).append('/');
+		StringBuffer path = makeConfigPath(cip_name, version, classifier);
 		EtcdClient etcd = null;
 		try {
 			logger.debug("Attempting to access ETCD at URL: {}", this.url);
@@ -124,21 +123,20 @@ public class EtcdPropertyStore implements PropertyStore {
 		return store;
 	}
 
-	public CipProperties loadConfig(String cip_name, String version) throws CIAOConfigurationException {
+	public CipProperties loadConfig(String cip_name, String version, String classifier) throws CIAOConfigurationException {
 		final MemoryCipProperties store = new MemoryCipProperties(cip_name, version);
 		
 		EtcdClient etcd = null;
 		try {
 			logger.debug("Attempting to access ETCD at URL: {}", this.url);
 			etcd = new EtcdClient(URI.create(this.url));
-			StringBuffer path = new StringBuffer();
-			path.append(CIAO_PREFIX).append('/').append(cip_name).append('/').append(version);
+			StringBuffer path = makeConfigPath(cip_name, version, classifier);
 			
 			// Retrieve all entries
 			EtcdKeysResponse response = etcd.getDir(path.toString()).recursive().send().get();
 			List<EtcdNode> entries = response.node.nodes;
 			for (EtcdNode entry : entries) {
-				String key = entry.key.substring(path.length()+2);
+				String key = entry.key.substring(path.length()+1);
 				store.setConfigValue(key, entry.value);
 				logger.debug("Adding entry - key: {} , value: {}", key, entry.value);
 			}
@@ -160,5 +158,23 @@ public class EtcdPropertyStore implements PropertyStore {
 		}
 		
 		return store;
+	}
+	
+	/**
+	 * Builds a path for our etcd config using the CIP name, version, and (if it exists) the classifier.
+	 * @param cip_name
+	 * @param version
+	 * @param classifier
+	 * @return String filename
+	 */
+	private static StringBuffer makeConfigPath(String cip_name, String version, String classifier) {
+		StringBuffer path = new StringBuffer();
+		path.append(CIAO_PREFIX).append('/').append(cip_name).append('/').append(version);
+		if (classifier != null) {
+			path.append("/").append(classifier);
+		}
+		path.append("/");
+		logger.debug("ETCD Path: {}", path);
+		return path;
 	}
 }

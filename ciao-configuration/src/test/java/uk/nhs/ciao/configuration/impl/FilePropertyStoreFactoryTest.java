@@ -37,16 +37,21 @@ public class FilePropertyStoreFactoryTest {
 
 	private static final String CIPNAME = "ciao-configuration-test";
 	private static final String VERSION = "v1";
+	public static final String TEST_CLASSIFIER = "BLAH";
 	
 	private static Logger logger = LoggerFactory.getLogger(FilePropertyStoreFactoryTest.class);
 	
 	/**
 	 * Removes test data created when executing the unit test
 	 */
-	public static void removeTestData() {
+	public static void removeTestData(String classifier) {
 		String home = System.getProperty("user.home").replace('\\', '/');
 		StringBuffer filePath = new StringBuffer();
-		filePath.append(home).append("/.ciao/").append(CIPNAME).append('-').append(VERSION).append(".properties");
+		filePath.append(home).append("/.ciao/").append(CIPNAME).append('-').append(VERSION);
+		if (classifier != null) {
+			filePath.append('-').append(classifier);
+		}
+		filePath.append(".properties");
 		File f = new File(filePath.toString());
 		logger.info("Removing test data from path: {}", filePath);
 		if (f.exists()) {
@@ -60,7 +65,8 @@ public class FilePropertyStoreFactoryTest {
 	
 	@Before
 	public void setUp() throws Exception {
-		removeTestData();
+		removeTestData(null);
+		removeTestData(TEST_CLASSIFIER);
 	}
 
 	/**
@@ -68,7 +74,8 @@ public class FilePropertyStoreFactoryTest {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		removeTestData();
+		removeTestData(null);
+		removeTestData(TEST_CLASSIFIER);
 	}
 	
 	@Test
@@ -77,7 +84,7 @@ public class FilePropertyStoreFactoryTest {
 		FilePropertyStore fileStore = new FilePropertyStore(null); 
 		boolean result = false;
 		try {
-			result = fileStore.versionExists(CIPNAME, VERSION);
+			result = fileStore.versionExists(CIPNAME, VERSION, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Error accessing config file");
@@ -85,13 +92,13 @@ public class FilePropertyStoreFactoryTest {
 		assertFalse(result);
 	}
 	
-	private FilePropertyStore createInitialStore() {
+	private FilePropertyStore createInitialStore(String classifier) {
 		FilePropertyStore fileStore = new FilePropertyStore(null); 
 		Properties defaultConfig = new Properties();
 		defaultConfig.setProperty("testProperty1", "testValue1");
 		defaultConfig.setProperty("testProperty2", "testValue2");
 		try {
-			fileStore.setDefaults(CIPNAME, VERSION, defaultConfig);
+			fileStore.setDefaults(CIPNAME, VERSION, classifier, defaultConfig);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			fail(e1.getMessage());
@@ -101,10 +108,23 @@ public class FilePropertyStoreFactoryTest {
 	
 	@Test
 	public void testCreateInitialStore() {
-		FilePropertyStore fileStore = createInitialStore(); 
+		FilePropertyStore fileStore = createInitialStore(null); 
 		boolean result = false;
 		try {
-			result = fileStore.versionExists(CIPNAME, VERSION);
+			result = fileStore.versionExists(CIPNAME, VERSION, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Error accessing config file");
+		}
+		assertTrue(result);
+	}
+	
+	@Test
+	public void testCreateInitialStoreWithClassifier() {
+		FilePropertyStore fileStore = createInitialStore(TEST_CLASSIFIER); 
+		boolean result = false;
+		try {
+			result = fileStore.versionExists(CIPNAME, VERSION, TEST_CLASSIFIER);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Error accessing config file");
@@ -114,9 +134,23 @@ public class FilePropertyStoreFactoryTest {
 	
 	@Test
 	public void testGetConfigValue() {
-		FilePropertyStore fileStore = createInitialStore();
+		FilePropertyStore fileStore = createInitialStore(null);
 		try {
-			final CipProperties store = fileStore.loadConfig(CIPNAME, VERSION);
+			final CipProperties store = fileStore.loadConfig(CIPNAME, VERSION, null);
+			logger.info("Attempting to read value for key: testProperty1");
+			String val = store.getConfigValue("testProperty1");
+			assertEquals("testValue1", val);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}	
+	}
+	
+	@Test
+	public void testGetConfigValueWithClassifier() {
+		FilePropertyStore fileStore = createInitialStore(TEST_CLASSIFIER);
+		try {
+			final CipProperties store = fileStore.loadConfig(CIPNAME, VERSION, TEST_CLASSIFIER);
 			logger.info("Attempting to read value for key: testProperty1");
 			String val = store.getConfigValue("testProperty1");
 			assertEquals("testValue1", val);
@@ -128,9 +162,9 @@ public class FilePropertyStoreFactoryTest {
 	
 	@Test
 	public void testGetMissingConfigValue() {
-		FilePropertyStore fileStore = createInitialStore();
+		FilePropertyStore fileStore = createInitialStore(null);
 		try {
-			final CipProperties store = fileStore.loadConfig(CIPNAME, VERSION);
+			final CipProperties store = fileStore.loadConfig(CIPNAME, VERSION, null);
 			logger.info("Attempting to read value for invalid key: missingKey");
 			String val = store.getConfigValue("missingKey");
 			assertNull(val);
@@ -142,9 +176,9 @@ public class FilePropertyStoreFactoryTest {
 	
 	@Test
 	public void testGetConfigKeys() {
-		final FilePropertyStore fileStore = createInitialStore();
+		final FilePropertyStore fileStore = createInitialStore(null);
 		try {
-			final CipProperties store = fileStore.loadConfig(CIPNAME, VERSION);
+			final CipProperties store = fileStore.loadConfig(CIPNAME, VERSION, null);
 			logger.info("Attempting to read all config keys");
 			final Set<String> expected = new HashSet<String>(
 						Arrays.asList("testProperty1", "testProperty2"));

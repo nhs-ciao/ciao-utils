@@ -33,6 +33,8 @@ import uk.nhs.ciao.configuration.impl.EtcdPropertyStoreFactoryTest;
 import uk.nhs.ciao.configuration.impl.FilePropertyStoreFactoryTest;
 
 public class CIAOConfigTest {
+	
+	public static final String TEST_CLASSIFIER = "BLAH";
 
 	private static Properties defaultConfig;
 	private static Logger logger = LoggerFactory.getLogger(CIAOConfigTest.class);
@@ -50,7 +52,8 @@ public class CIAOConfigTest {
 	@After
 	public void tearDown() throws Exception {
 		EtcdPropertyStoreFactoryTest.removeTestData();
-		FilePropertyStoreFactoryTest.removeTestData();
+		//FilePropertyStoreFactoryTest.removeTestData(null);
+		//FilePropertyStoreFactoryTest.removeTestData(TEST_CLASSIFIER);
 	}
 
 	@Test
@@ -67,11 +70,15 @@ public class CIAOConfigTest {
 	@Test
 	public void testETCDMultipleAccesses() {
 		try {
+			logger.info("Initialising first config instance");
 			CIAOConfig config = new CIAOConfig(ETCDURL, null, CIPNAME, VERSION, defaultConfig);
 			// Now, lets create a second CIAOConfig to simulate a second client connecting - which should
 			// pick up the same values and not set new defaults.
+			logger.info("Initialising second config instance");
 			CIAOConfig config2 = new CIAOConfig(ETCDURL, null, CIPNAME, VERSION, null);
-			assertEquals("testValue2", config2.getConfigValue("testProperty2"));
+			String result = config2.getConfigValue("testProperty2");
+			logger.info("Got value: " + result);
+			assertEquals("testValue2", result);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());
@@ -144,10 +151,41 @@ public class CIAOConfigTest {
 	}
 	
 	@Test
+	public void testETCDWithCommandLineParamsAndClassifier() {
+		String args[] = new String[] { "--etcdURL", ETCDURL, "--classifier", TEST_CLASSIFIER };
+		
+		try {
+			CIAOConfig config = new CIAOConfig(args, CIPNAME, VERSION, defaultConfig);
+			assertEquals("testValue2", config.getConfigValue("testProperty2"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+	
+	@Test
 	public void testFileSpecificPathWithCommandLineParameters() {
 		String home = System.getProperty("user.home").replace('\\', '/');
 		String path = home + "/testPath";
 		String args[] = new String[] { "--configPath", path };
+		try {
+			CIAOConfig config = new CIAOConfig(args, CIPNAME, VERSION, defaultConfig);
+			assertEquals("testValue2", config.getConfigValue("testProperty2"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+		// Remove it when we have finished
+		logger.info("Removing test data from path: {}", path);
+		deleteFilesInDir(path);
+		new File(path).delete();
+	}
+	
+	@Test
+	public void testFileSpecificPathWithCommandLineParametersAndClassifier() {
+		String home = System.getProperty("user.home").replace('\\', '/');
+		String path = home + "/testPath";
+		String args[] = new String[] { "--configPath", path, "--classifier", TEST_CLASSIFIER };
 		try {
 			CIAOConfig config = new CIAOConfig(args, CIPNAME, VERSION, defaultConfig);
 			assertEquals("testValue2", config.getConfigValue("testProperty2"));

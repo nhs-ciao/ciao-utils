@@ -66,12 +66,27 @@ public class CIAOConfig {
 	 * @param cipName Name of CIP
 	 * @param version Version number of CIP
 	 * @param defaultConfig Java properties object with default config values for CIP
-	 * @throws Exception 
+	 * @param classifier An optional classifier to allow multiple versions of config to exist for different running CIPs
+	 * @throws CIAOConfigurationException
+	 */
+	public CIAOConfig(String etcdURL, String configFilePath,
+			String cipName, String version, Properties defaultConfig, String classifier) throws CIAOConfigurationException {
+		
+		initialise(etcdURL, configFilePath, cipName, version, defaultConfig, classifier);
+	}
+	
+	/**
+	 * Constructor to initialise the configuration for a CIAO CIP.
+	 * @param etcdURL URL for etcd (or null to use a local config file)
+	 * @param configFilePath Path to look for config file
+	 * @param cipName Name of CIP
+	 * @param version Version number of CIP
+	 * @param defaultConfig Java properties object with default config values for CIP
+	 * @throws CIAOConfigurationException 
 	 */
 	public CIAOConfig(String etcdURL, String configFilePath,
 			String cipName, String version, Properties defaultConfig) throws CIAOConfigurationException {
-		
-		initialise(etcdURL, configFilePath, cipName, version, defaultConfig);
+		initialise(etcdURL, configFilePath, cipName, version, defaultConfig, null);
 	}
 	
 	/**
@@ -150,19 +165,22 @@ public class CIAOConfig {
 	}
 	
 	protected void initialise(String etcdURL, String configFilePath,
-			String cipName, String version, Properties defaultConfig) throws CIAOConfigurationException {
+			String cipName, String version, Properties defaultConfig, String classifier) throws CIAOConfigurationException {
 		
 		// See if we have an ETCD URL
 		if (etcdURL != null) {
 			EtcdPropertyStore etcd = new EtcdPropertyStore(etcdURL);
 			try {
-				if (etcd.versionExists(cipName, version)) {
-					logger.debug("Found etcd config at URL: " + etcdURL);
-					this.cipProperties = etcd.loadConfig(cipName, version);
+				if (etcd.versionExists(cipName, version, classifier)) {
+					logger.info("Found etcd config at URL: " + etcdURL);
+					this.cipProperties = etcd.loadConfig(cipName, version, classifier);
 				} else {
 					logger.debug("etcd config not yet initialised for this CIP");
-					this.cipProperties = etcd.setDefaults(cipName, version, defaultConfig);
-					logger.debug("Initialised default etcd config for this CIP at URL: " + etcdURL);
+					if (defaultConfig == null) {
+						throw new CIAOConfigurationException("No default CIP config was provided - unable to initialise CIP");
+					}
+					this.cipProperties = etcd.setDefaults(cipName, version, classifier, defaultConfig);
+					logger.info("Initialised default etcd config for this CIP at URL: " + etcdURL);
 				}
 			} catch (Exception e) {
 				logger.error("Can't connect to ETCD URL provided");
@@ -172,12 +190,12 @@ public class CIAOConfig {
 			logger.debug("No ETCD URL provided, using local configuration");
 			// Fall-back on file-based config
 			FilePropertyStore fileStore = new FilePropertyStore(configFilePath);
-			if (fileStore.versionExists(cipName, version)) {
-				logger.debug("Found file-based config at path: {}", fileStore.getPath());
-				this.cipProperties = fileStore.loadConfig(cipName, version);
+			if (fileStore.versionExists(cipName, version, classifier)) {
+				logger.info("Found file-based config at path: {}", fileStore.getPath());
+				this.cipProperties = fileStore.loadConfig(cipName, version, classifier);
 			} else {
-				this.cipProperties = fileStore.setDefaults(cipName, version, defaultConfig);
-				logger.debug("Initialised default file-based config for this CIP at path: {}", fileStore.getPath());
+				this.cipProperties = fileStore.setDefaults(cipName, version, classifier, defaultConfig);
+				logger.info("Initialised default file-based config for this CIP at path: {}", fileStore.getPath());
 			}
 		}
 	}

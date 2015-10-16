@@ -36,10 +36,12 @@ import uk.nhs.ciao.configuration.impl.EtcdPropertyStore;
 
 public class EtcdPropertyStoreFactoryTest {
 
+	private static final String CIAO_PREFIX = "ciao";
 	public static final String CIPNAME = "ciao-configuration-test";
 	//private static final String ETCDURL = "http://104.155.27.125:80";
 	public static final String ETCDURL = "http://127.0.0.1:4001";
 	public static final String VERSION = "v1";
+	public static final String TEST_CLASSIFIER = "BLAH";
 
 	private static Logger logger = LoggerFactory.getLogger(EtcdPropertyStoreFactoryTest.class);
 
@@ -52,7 +54,7 @@ public class EtcdPropertyStoreFactoryTest {
 	public static void removeTestData() throws IOException, EtcdException, TimeoutException {
 		logger.info("Attempting to initialise ETCD with URL: {}", ETCDURL);
 		StringBuffer path = new StringBuffer();
-		path.append("ciao/").append(CIPNAME).append('/').append(VERSION);
+		path.append(CIAO_PREFIX).append('/').append(CIPNAME);//.append('/').append(VERSION);
 		EtcdClient etcd = new EtcdClient(URI.create(ETCDURL));
 	    // Logs etcd version
 	    logger.info(etcd.getVersion());
@@ -79,7 +81,7 @@ public class EtcdPropertyStoreFactoryTest {
 	
 	private EtcdPropertyStore etcdStore;
 
-	private CipProperties createInitialStore() {
+	private CipProperties createInitialStore(String classifier) {
 		CipProperties initialStore = null;
 		
 		etcdStore = new EtcdPropertyStore(ETCDURL); 
@@ -87,7 +89,7 @@ public class EtcdPropertyStoreFactoryTest {
 		defaultConfig.setProperty("testProperty1", "testValue1");
 		defaultConfig.setProperty("testProperty2", "testValue2");
 		try {
-			initialStore = etcdStore.setDefaults(CIPNAME, VERSION, defaultConfig);
+			initialStore = etcdStore.setDefaults(CIPNAME, VERSION, classifier, defaultConfig);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			fail(e1.getMessage());
@@ -116,7 +118,7 @@ public class EtcdPropertyStoreFactoryTest {
 		EtcdPropertyStore etcdStore = new EtcdPropertyStore(ETCDURL); 
 		boolean result = false;
 		try {
-			result = etcdStore.versionExists(CIPNAME, VERSION);
+			result = etcdStore.versionExists(CIPNAME, VERSION, null);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Error accessing ETCD URL");
@@ -126,10 +128,23 @@ public class EtcdPropertyStoreFactoryTest {
 	
 	@Test
 	public void testCreateInitialStore() {
-		createInitialStore();
+		createInitialStore(null);
 		boolean result = false;
 		try {
-			result = etcdStore.versionExists(CIPNAME, VERSION);
+			result = etcdStore.versionExists(CIPNAME, VERSION, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Error accessing ETCD URL");
+		}
+		assertTrue(result);
+	}
+	
+	@Test
+	public void testCreateInitialStoreWithClassifier() {
+		createInitialStore(TEST_CLASSIFIER);
+		boolean result = false;
+		try {
+			result = etcdStore.versionExists(CIPNAME, VERSION, TEST_CLASSIFIER);
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail("Error accessing ETCD URL");
@@ -139,9 +154,23 @@ public class EtcdPropertyStoreFactoryTest {
 	
 	@Test
 	public void testGetConfigValue() {
-		createInitialStore();
+		createInitialStore(null);
 		try {
-			final CipProperties store = etcdStore.loadConfig(CIPNAME, VERSION);
+			final CipProperties store = etcdStore.loadConfig(CIPNAME, VERSION, null);
+			logger.info("Attempting to read value for key: testProperty1");
+			String val = store.getConfigValue("testProperty1");
+			assertEquals("testValue1", val);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}	
+	}
+	
+	@Test
+	public void testGetConfigValueWithClassifier() {
+		createInitialStore(TEST_CLASSIFIER);
+		try {
+			final CipProperties store = etcdStore.loadConfig(CIPNAME, VERSION, TEST_CLASSIFIER);
 			logger.info("Attempting to read value for key: testProperty1");
 			String val = store.getConfigValue("testProperty1");
 			assertEquals("testValue1", val);
@@ -153,9 +182,9 @@ public class EtcdPropertyStoreFactoryTest {
 	
 	@Test
 	public void testGetMissingConfigValue() {
-		createInitialStore();
+		createInitialStore(null);
 		try {
-			final CipProperties store = etcdStore.loadConfig(CIPNAME, VERSION);
+			final CipProperties store = etcdStore.loadConfig(CIPNAME, VERSION, null);
 			logger.info("Attempting to read value for invalid key: missingKey");
 			String val = store.getConfigValue("missingKey");
 			assertNull(val);
@@ -168,7 +197,7 @@ public class EtcdPropertyStoreFactoryTest {
 	@Test
 	public void testGetDefaultConfigKeys() {
 		// Capture the initially created store instance (i.e. no save->load round-trip in ETCD)
-		final CipProperties store = createInitialStore();
+		final CipProperties store = createInitialStore(null);
 		try {			
 			logger.info("Attempting to read all config keys");
 			
@@ -185,9 +214,9 @@ public class EtcdPropertyStoreFactoryTest {
 	
 	@Test
 	public void testGetPreviouslySavedConfigKeys() {
-		createInitialStore();
+		createInitialStore(null);
 		try {
-			final CipProperties store = etcdStore.loadConfig(CIPNAME, VERSION);
+			final CipProperties store = etcdStore.loadConfig(CIPNAME, VERSION, null);
 			logger.info("Attempting to read all config keys");
 			
 			// "configured" key is automatically registered in ETCD
