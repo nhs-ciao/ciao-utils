@@ -56,3 +56,25 @@ List<MessageHandlingService> messageHandlingServices = sds.findMessageHandlingSe
 	.list()
 
 ```
+
+## Building and Running
+
+To pull down the code, run:
+
+	git clone https://github.com/nhs-ciao/ciao-utils.git
+	
+You can then compile the module via:
+
+    cd ciao-spine-sds
+	mvn clean install
+
+This will compile the `ciao-spine-sds` module which can be found at `ciao-spine-sds\target\ciao-spine-sds-{version}.jar`.
+
+To add the library to a Maven project include:
+```xml
+<dependency>
+	<groupId>uk.nhs.ciao</groupId>
+	<artifactId>ciao-spine-sds</artifactId>
+	<version>${sds.version}</version>
+</dependency>
+```
