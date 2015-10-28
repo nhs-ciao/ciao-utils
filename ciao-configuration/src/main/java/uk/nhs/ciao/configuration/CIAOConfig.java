@@ -164,7 +164,36 @@ public class CIAOConfig {
 		}
 	}
 	
+	
+	/**
+	 * Initialise method for config, which calls the environment variable initialiser first, before passing
+	 * control to the real initialise method.
+	 * @param etcdURL URL for etcd (or null to use a local config file)
+	 * @param configFilePath Path to look for config file
+	 * @param cipName Name of CIP
+	 * @param version Version number of CIP
+	 * @param defaultConfig Java properties object with default config values for CIP
+	 * @param classifier An optional classifier to allow multiple versions of config to exist for different running CIPs
+	 * @throws CIAOConfigurationException
+	 */
 	protected void initialise(String etcdURL, String configFilePath,
+			String cipName, String version, Properties defaultConfig, String classifier) throws CIAOConfigurationException {
+		
+		EnvironmentVariableInitialiser.initialiseFromEnvironmentVariables(this, etcdURL, configFilePath,
+				cipName, version, defaultConfig, classifier);
+	}
+	
+	/**
+	 * Initialise the config object, using either etcd or file-based config.
+	 * @param etcdURL URL for etcd (or null to use a local config file)
+	 * @param configFilePath Path to look for config file
+	 * @param cipName Name of CIP
+	 * @param version Version number of CIP
+	 * @param defaultConfig Java properties object with default config values for CIP
+	 * @param classifier An optional classifier to allow multiple versions of config to exist for different running CIPs
+	 * @throws CIAOConfigurationException
+	 */
+	protected void initialiseConfig(String etcdURL, String configFilePath,
 			String cipName, String version, Properties defaultConfig, String classifier) throws CIAOConfigurationException {
 		
 		// See if we have an ETCD URL
