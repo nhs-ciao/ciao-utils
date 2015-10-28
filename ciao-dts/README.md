@@ -4,7 +4,7 @@
 
 ## Introduction
 
-The DTS/MESH client uses a file-based API to send and receive messages.
+The [DTS/MESH](http://systems.hscic.gov.uk/spine/DTS) client uses a file-based API to send and receive messages.
 
 - Control files are used both when sending/receiving data messages, and when receiving reports. DTS control files are encoded using an XML format and use the `*.ctl` file-name extension.
 - For data messages, a corresponding `data file` using the `*.dat` file-name extension is also present. The format of the data file is unspecified and is treated as a binary payload.
