@@ -17,6 +17,32 @@ The [DTS/MESH](http://systems.hscic.gov.uk/spine/DTS) client uses a file-based A
 
 > Camel is an optional dependency: the control file, parser and serializer can all be used without Camel. If Camel is added to the classpath, the type converter is automatically registered via the `META-INF/services` loader.
 
+## Examples
+
+```java
+// Creating a control file
+ControlFile prototype = new ControlFile();
+prototype.setMessageType(MessageType.Data);
+prototype.setAddressType(AddressType.DTS);
+prototype.setFromDTS("sender-mailbox");
+prototype.setToDTS("receiver-mailbox");
+
+// Applying default values for non-specified fields (e.g. timestamp)
+prototype.applyDefaults();
+
+// Parsing a control file
+Reader reader = new FileReader("example.ctl");
+ControlFile controlFile = ControlFile.fromXml(reader);
+
+// Merging / copying properties between control files
+boolean overwrite = false;
+controlFile.copyFrom(prototype, overwrite);
+
+// Serializing a control file
+Writer writer = new FileWriter("output.ctl");
+controlFile.toXml(writer);
+```
+
 ## Building and Running
 
 To pull down the code, run:
