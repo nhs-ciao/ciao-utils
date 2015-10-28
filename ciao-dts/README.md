@@ -19,6 +19,8 @@ The [DTS/MESH](http://systems.hscic.gov.uk/spine/DTS) client uses a file-based A
 
 ## Examples
 
+**Creating, parsing and serializing control files:**
+
 ```java
 // Creating a control file
 ControlFile prototype = new ControlFile();
@@ -41,6 +43,27 @@ controlFile.copyFrom(prototype, overwrite);
 // Serializing a control file
 Writer writer = new FileWriter("output.ctl");
 controlFile.toXml(writer);
+```
+
+**Camel type conversion:**
+```java
+public class ExampleRoute extends RouteBuilder {
+	@Override
+	public void configure() throws Exception {
+		from("file://./dts-root/IN?include=.*ctl")
+			// the control file type converter is automatically registered in Camel
+			.convertBodyTo(ControlFile.class)
+			.log("Found control file from ${body.fromDTS} with localId: ${body.localId}")
+			
+			// Use / modify the control file in some way
+			.bean(new ControlFileProcessor())
+			
+			// Serialize the updated control file as XML
+			.convertBodyTo(String.class)
+			.log("Converted the control file to XML: ${body}")
+		.end();
+	}
+}
 ```
 
 ## Building and Running
