@@ -20,7 +20,11 @@ import static uk.nhs.ciao.configuration.impl.EtcdPropertyStoreFactoryTest.ETCDUR
 import static uk.nhs.ciao.configuration.impl.EtcdPropertyStoreFactoryTest.VERSION;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.TimeoutException;
+
+import mousio.etcd4j.responses.EtcdException;
 
 import org.junit.After;
 import org.junit.Before;
@@ -35,6 +39,7 @@ import uk.nhs.ciao.configuration.impl.FilePropertyStoreFactoryTest;
 public class CIAOConfigTest {
 	
 	public static final String TEST_CLASSIFIER = "BLAH";
+	public static final String TEST_CHILD_ENTRY_CLASSIFIER = "child";
 
 	private static Properties defaultConfig;
 	private static Logger logger = LoggerFactory.getLogger(CIAOConfigTest.class);
@@ -157,6 +162,41 @@ public class CIAOConfigTest {
 		try {
 			CIAOConfig config = new CIAOConfig(args, CIPNAME, VERSION, defaultConfig);
 			assertEquals("testValue2", config.getConfigValue("testProperty2"));
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testETCDWithCommandLineParamsClassifierAndParentChildEntries() throws IOException, EtcdException, TimeoutException {
+		
+		final String TEST_CHILD_ENTRY_CLASSIFIER = "child";
+		final String TEST_INTERMEDIATE_PARENT_ENTRY_CLASSIFIER = "intermediateParent";
+		
+		// First, create a child config item as if it was created outside CIAO
+		EtcdPropertyStoreFactoryTest.createChildConfigEntryInETCD("testChildKey", "testChildValue",
+				CIPNAME, VERSION, TEST_INTERMEDIATE_PARENT_ENTRY_CLASSIFIER,
+				CIPNAME, VERSION, TEST_CHILD_ENTRY_CLASSIFIER);
+		
+		// Now, create an intermediate parent item as if it was also created outside CIAO
+		EtcdPropertyStoreFactoryTest.createChildConfigEntryInETCD("testIntermediateKey", "testIntermediateValue",
+				CIPNAME, VERSION, null,
+				CIPNAME, VERSION, TEST_INTERMEDIATE_PARENT_ENTRY_CLASSIFIER);
+		
+		String args[] = new String[] { "--etcdURL", ETCDURL, "--classifier", TEST_CHILD_ENTRY_CLASSIFIER };
+		
+		try {
+			CIAOConfig config = new CIAOConfig(args, CIPNAME, VERSION, defaultConfig);
+			logger.info("Initialised config: {}", config.toString());
+			
+			// First, get a value from the child entry
+			assertEquals("testChildValue", config.getConfigValue("testChildKey"));
+			// Now, get a value from the intermediate parent entry
+			assertEquals("testIntermediateValue", config.getConfigValue("testIntermediateKey"));
+			// Now, get one from the parent
+			assertEquals("testValue2", config.getConfigValue("testProperty2"));
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			fail(e.getMessage());

@@ -65,6 +65,10 @@ public class MemoryCipProperties implements CipProperties {
 		return this.configValues.get(key);
 	}
 	
+	public boolean containsValue(String key) {
+		return this.configValues.containsKey(key);
+	}
+	
 	public Set<String> getConfigKeys() {
 		return Collections.unmodifiableSet(configValues.keySet());
 	}
@@ -104,5 +108,13 @@ public class MemoryCipProperties implements CipProperties {
 			
 			LOGGER.debug("Adding entries: {}", configValues);
 		}
+	}
+	
+	public final void removeKey(final String key) {
+		configValues.remove(key);
+	}
+
+	public void addConfigValue(String key, String value) {
+		configValues.put(key, value);
 	}
 }

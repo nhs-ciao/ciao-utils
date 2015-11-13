@@ -13,6 +13,7 @@
 */
 package uk.nhs.ciao.configuration.impl;
 
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -38,12 +39,12 @@ public interface CipProperties {
 	/**
 	 * The name of the CIP these properties are associated with
 	 */
-	String getCipName();
+	String getCipName() throws CIAOConfigurationException;
 	
 	/**
 	 * The version of the CIP properties
 	 */
-	String getVersion();
+	String getVersion() throws CIAOConfigurationException;
 	
 	/**
 	 * Retrieve a configuration value for the provided key
@@ -53,6 +54,13 @@ public interface CipProperties {
 	 */
 	public String getConfigValue(String key) throws CIAOConfigurationException;
 	
+	
+	/**
+	 * Checks whether a value exists in the config for a specific key
+	 * @param key
+	 * @return true if the key exists, false if not
+	 */
+	public boolean containsValue(String key);
 	
 	/**
 	 * Returns the set of configuration keys associated with this store
@@ -73,4 +81,17 @@ public interface CipProperties {
 	 * @return All key-value pairs held
 	 */
 	public String toString();
+	
+	/**
+	 * Adds a new key and value into the config
+	 * @param key Key to set
+	 * @param value Value to set
+	 */
+	public void addConfigValue(String key, String value);
+	
+	/**
+	 * Removes a property from config
+	 * @param key key to remove
+	 */
+	public void removeKey(String key);
 }

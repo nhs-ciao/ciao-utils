@@ -13,6 +13,9 @@
 */
 package uk.nhs.ciao.configuration;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -42,7 +45,11 @@ import uk.nhs.ciao.exceptions.CIAOConfigurationException;
  * 
  * @author Adam Hatherly
  */
-public class CIAOConfig {	
+public class CIAOConfig implements CipProperties {	
+	private static final String PARENT_CIP_NAME_KEY = "parent.cip.name";
+	private static final String PARENT_CIP_VERSION_KEY = "parent.cip.version";
+	private static final String PARENT_CIP_CLASSIFIER_KEY = "parent.cip.classifier";
+	
 	private CipProperties cipProperties = null;
 	private static Logger logger = LoggerFactory.getLogger(CIAOConfig.class);
 
@@ -155,6 +162,21 @@ public class CIAOConfig {
 		return this.cipProperties.getAllProperties();
 	}
 	
+	/**
+	 * Returns true if the specific key exists in the config
+	 */
+	public boolean containsValue(String key) {
+		return this.cipProperties.containsValue(key);
+	}
+	
+	public void addConfigValue(String key, String value) {
+		this.cipProperties.addConfigValue(key, value);
+	}
+	
+	public final void removeKey(final String key) {
+		this.cipProperties.removeKey(key);
+	}
+	
 	@Override
 	public String toString() {
 		if (this.cipProperties == null) {
@@ -194,7 +216,72 @@ public class CIAOConfig {
 	 * @throws CIAOConfigurationException
 	 */
 	protected void initialiseConfig(String etcdURL, String configFilePath,
+			String cipName, String version, Properties defaultConfig, String classifier, List<String> initialisedPaths) throws CIAOConfigurationException {
+		
+		String abstractPath = makeAbstractPath(cipName, version, classifier);
+		
+		if (initialisedPaths == null) {
+			initialisedPaths = new ArrayList<String>();
+		} else {
+			// Check if this is a path we have already initialised
+			if (initialisedPaths.contains(abstractPath)) {
+				return;
+			}
+			initialisedPaths.add(abstractPath);
+		}
+		
+		// Initialise the properties
+		CipProperties newCipProperties = initialiseConfigValues(etcdURL, configFilePath,
+				cipName, version, defaultConfig, classifier);
+		
+		// Add the keys to our in-memory property store
+		if (this.cipProperties == null) {
+			this.cipProperties = newCipProperties;
+		} else {
+			// Add any non-conflicting keys
+			for (String newKey : newCipProperties.getConfigKeys()) {
+				if (!this.cipProperties.containsValue(newKey)) {
+					this.cipProperties.addConfigValue(newKey, newCipProperties.getConfigValue(newKey));
+				}
+			}
+		}
+		
+		// Check if there is also parent config we need to load
+		if (newCipProperties.containsValue(PARENT_CIP_NAME_KEY)) {
+			if (!newCipProperties.containsValue(PARENT_CIP_VERSION_KEY)) {
+				throw new CIAOConfigurationException("The configuration specific contains a parent CIP but does not specify the parent CIP version");
+			}
+			String parentClassifier = null;
+			if (newCipProperties.containsValue(PARENT_CIP_CLASSIFIER_KEY)) {
+				parentClassifier = newCipProperties.getConfigValue(PARENT_CIP_CLASSIFIER_KEY); 
+			}
+			// Iterate
+			initialiseConfig(etcdURL, configFilePath,
+					newCipProperties.getConfigValue(PARENT_CIP_NAME_KEY),
+					newCipProperties.getConfigValue(PARENT_CIP_VERSION_KEY),
+					defaultConfig, parentClassifier, initialisedPaths);
+		}
+		
+		// Remove any parent keys on our config
+		this.cipProperties.removeKey(PARENT_CIP_NAME_KEY);
+		this.cipProperties.removeKey(PARENT_CIP_VERSION_KEY);
+		this.cipProperties.removeKey(PARENT_CIP_CLASSIFIER_KEY);
+	}
+	
+	/**
+	 * Initialise the config object, using either etcd or file-based config.
+	 * @param etcdURL URL for etcd (or null to use a local config file)
+	 * @param configFilePath Path to look for config file
+	 * @param cipName Name of CIP
+	 * @param version Version number of CIP
+	 * @param defaultConfig Java properties object with default config values for CIP
+	 * @param classifier An optional classifier to allow multiple versions of config to exist for different running CIPs
+	 * @throws CIAOConfigurationException
+	 */
+	private CipProperties initialiseConfigValues(String etcdURL, String configFilePath,
 			String cipName, String version, Properties defaultConfig, String classifier) throws CIAOConfigurationException {
+		
+		CipProperties newCipProperties = null;
 		
 		// See if we have an ETCD URL
 		if (etcdURL != null) {
@@ -202,13 +289,13 @@ public class CIAOConfig {
 			try {
 				if (etcd.versionExists(cipName, version, classifier)) {
 					logger.info("Found etcd config at URL: " + etcdURL);
-					this.cipProperties = etcd.loadConfig(cipName, version, classifier);
+					newCipProperties = etcd.loadConfig(cipName, version, classifier);
 				} else {
 					logger.debug("etcd config not yet initialised for this CIP");
 					if (defaultConfig == null) {
 						throw new CIAOConfigurationException("No default CIP config was provided - unable to initialise CIP");
 					}
-					this.cipProperties = etcd.setDefaults(cipName, version, classifier, defaultConfig);
+					newCipProperties = etcd.setDefaults(cipName, version, classifier, defaultConfig);
 					logger.info("Initialised default etcd config for this CIP at URL: " + etcdURL);
 				}
 			} catch (Exception e) {
@@ -221,12 +308,13 @@ public class CIAOConfig {
 			FilePropertyStore fileStore = new FilePropertyStore(configFilePath);
 			if (fileStore.versionExists(cipName, version, classifier)) {
 				logger.info("Found file-based config at path: {}", fileStore.getPath());
-				this.cipProperties = fileStore.loadConfig(cipName, version, classifier);
+				newCipProperties = fileStore.loadConfig(cipName, version, classifier);
 			} else {
-				this.cipProperties = fileStore.setDefaults(cipName, version, classifier, defaultConfig);
+				newCipProperties = fileStore.setDefaults(cipName, version, classifier, defaultConfig);
 				logger.info("Initialised default file-based config for this CIP at path: {}", fileStore.getPath());
 			}
 		}
+		return newCipProperties;
 	}
 	
 	/**
@@ -237,5 +325,18 @@ public class CIAOConfig {
 		if (this.cipProperties == null) {
 			throw new CIAOConfigurationException("Configuration not initialised correctly - see error logs for details.");
 		}
+	}
+	
+	/**
+	 * Creates an astract path for the config including CIP, Version and Classifier
+	 * @param cipName
+	 * @param version
+	 * @param classifier
+	 * @return abstract path
+	 */
+	private String makeAbstractPath(String cipName, String version, String classifier) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(cipName).append("/").append(version).append("/").append(classifier).append("/");
+		return sb.toString();
 	}
 }

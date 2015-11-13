@@ -25,6 +25,7 @@ import java.util.concurrent.TimeoutException;
 
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.responses.EtcdException;
+import mousio.etcd4j.responses.EtcdKeysResponse;
 
 import org.junit.After;
 import org.junit.Before;
@@ -42,6 +43,10 @@ public class EtcdPropertyStoreFactoryTest {
 	public static final String ETCDURL = "http://127.0.0.1:4001";
 	public static final String VERSION = "v1";
 	public static final String TEST_CLASSIFIER = "BLAH";
+	private static final String PARENT_CIP_NAME_KEY = "parent.cip.name";
+	private static final String PARENT_CIP_VERSION_KEY = "parent.cip.version";
+	private static final String PARENT_CIP_CLASSIFIER_KEY = "parent.cip.classifier";
+	private static final String EXISTENCE_KEY = "configured";
 
 	private static Logger logger = LoggerFactory.getLogger(EtcdPropertyStoreFactoryTest.class);
 
@@ -77,6 +82,34 @@ public class EtcdPropertyStoreFactoryTest {
 				// Clean up connection
 			}
 		}
+	}
+	
+	
+	public static void createChildConfigEntryInETCD(String key, String value,
+			    String parentCipName, String parentCipVersion, String parentCipClassifier,
+				String cipName, String cipVersion, String cipClassifier) throws IOException, EtcdException, TimeoutException {
+		logger.info("Attempting to initialise ETCD with URL: {}", ETCDURL);
+		StringBuffer path = new StringBuffer();
+		path.append(CIAO_PREFIX).append('/').append(cipName).append('/')
+				.append(cipVersion).append('/').append(cipClassifier);
+		EtcdClient etcd = new EtcdClient(URI.create(ETCDURL));
+		
+		EtcdKeysResponse response = null;
+		
+		response = etcd.put(path.toString() + "/" + PARENT_CIP_NAME_KEY, parentCipName).send().get();
+		logger.info("Set value {} in path {}", response.node.value, path.toString() + "/" + PARENT_CIP_NAME_KEY);
+		response = etcd.put(path.toString() + "/" + PARENT_CIP_VERSION_KEY, parentCipVersion).send().get();
+		logger.info("Set value {} in path {}", response.node.value, path.toString() + "/" + PARENT_CIP_VERSION_KEY);
+		if (parentCipClassifier != null) {
+			response = etcd.put(path.toString() + "/" + PARENT_CIP_CLASSIFIER_KEY, parentCipClassifier).send().get();
+			logger.info("Set value {} in path {}", response.node.value, path.toString() + "/" + PARENT_CIP_CLASSIFIER_KEY);
+		}
+		response = etcd.put(path.toString() + "/" + EXISTENCE_KEY, "true").send().get();
+		logger.info("Set value {} in path {}", response.node.value, path.toString() + "/" + EXISTENCE_KEY);
+		
+		// And also set a test value in our child config
+		response = etcd.put(path.toString() + "/" + key, value).send().get();
+		logger.info("Set value {} in path {}", response.node.value, path.toString() + "/" + key);
 	}
 	
 	private EtcdPropertyStore etcdStore;

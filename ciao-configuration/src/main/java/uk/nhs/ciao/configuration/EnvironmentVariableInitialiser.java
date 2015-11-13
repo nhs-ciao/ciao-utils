@@ -65,6 +65,6 @@ public class EnvironmentVariableInitialiser {
             	classifier = value;
             }
 		}
-		config.initialiseConfig(etcdURL, configFilePath, cipName, version, defaultConfig, classifier);
+		config.initialiseConfig(etcdURL, configFilePath, cipName, version, defaultConfig, classifier, null);
 	}
 }
