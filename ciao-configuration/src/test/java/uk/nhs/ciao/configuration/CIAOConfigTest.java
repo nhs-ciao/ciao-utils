@@ -14,6 +14,7 @@
 package uk.nhs.ciao.configuration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.fail;
 import static uk.nhs.ciao.configuration.impl.EtcdPropertyStoreFactoryTest.CIPNAME;
 import static uk.nhs.ciao.configuration.impl.EtcdPropertyStoreFactoryTest.ETCDURL;
@@ -56,7 +57,7 @@ public class CIAOConfigTest {
 
 	@After
 	public void tearDown() throws Exception {
-		EtcdPropertyStoreFactoryTest.removeTestData();
+		//EtcdPropertyStoreFactoryTest.removeTestData();
 		//FilePropertyStoreFactoryTest.removeTestData(null);
 		//FilePropertyStoreFactoryTest.removeTestData(TEST_CLASSIFIER);
 	}
@@ -196,6 +197,30 @@ public class CIAOConfigTest {
 			assertEquals("testIntermediateValue", config.getConfigValue("testIntermediateKey"));
 			// Now, get one from the parent
 			assertEquals("testValue2", config.getConfigValue("testProperty2"));
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail(e.getMessage());
+		}
+	}
+	
+	@Test
+	public void testETCDChildDirectoriesDontGetAddedAsNullPropertyEntries() throws IOException, EtcdException, TimeoutException {
+		final String TEST_CHILD_ENTRY_CLASSIFIER = "child";
+		
+		// First, create a child config item as if it was created outside CIAO
+		EtcdPropertyStoreFactoryTest.createChildConfigEntryInETCD("testChildKey", "testChildValue",
+				CIPNAME, VERSION, null,
+				CIPNAME, VERSION, TEST_CHILD_ENTRY_CLASSIFIER);
+		
+		String args[] = new String[] { "--etcdURL", ETCDURL };
+		
+		try {
+			CIAOConfig config = new CIAOConfig(args, CIPNAME, VERSION, defaultConfig);
+			logger.info("Initialised config: {}", config.toString());
+			
+			// This is a child directory
+			assertFalse(config.containsValue("child"));
 			
 		} catch (Exception e) {
 			e.printStackTrace();

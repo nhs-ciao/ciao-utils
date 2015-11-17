@@ -136,9 +136,11 @@ public class EtcdPropertyStore implements PropertyStore {
 			EtcdKeysResponse response = etcd.getDir(path.toString()).recursive().send().get();
 			List<EtcdNode> entries = response.node.nodes;
 			for (EtcdNode entry : entries) {
-				String key = entry.key.substring(path.length()+1);
-				store.setConfigValue(key, entry.value);
-				logger.debug("Adding entry - key: {} , value: {}", key, entry.value);
+				if (!entry.dir) {
+					String key = entry.key.substring(path.length()+1);
+					store.setConfigValue(key, entry.value);
+					logger.debug("Adding entry - key: {} , value: {}", key, entry.value);
+				}
 			}
 		} catch (EtcdException e) {
 			if (e.errorCode == 100) {
