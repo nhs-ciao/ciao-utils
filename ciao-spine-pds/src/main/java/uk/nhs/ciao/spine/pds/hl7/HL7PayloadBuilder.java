@@ -2,12 +2,11 @@ package uk.nhs.ciao.spine.pds.hl7;
 
 import java.util.Date;
 
-import org.apache.camel.PropertyInject;
-
-import uk.nhs.ciao.configuration.CIAOConfig;
+import uk.nhs.ciao.spine.pds.model.SimpleTrace;
 import uk.nhs.interoperability.payloads.DateValue;
 import uk.nhs.interoperability.payloads.commontypes.SMSPPersonName;
 import uk.nhs.interoperability.payloads.spine.SpineSOAP;
+import uk.nhs.interoperability.payloads.spine.SpineSOAPBody;
 import uk.nhs.interoperability.payloads.spine.SpineSOAPSimpleTraceBody;
 import uk.nhs.interoperability.payloads.util.CDAUUID;
 import uk.nhs.interoperability.payloads.vocabularies.generated.HL7StandardVersionCode;
@@ -34,23 +33,76 @@ public class HL7PayloadBuilder {
 		return true;
 	}
 	
-	public String buildSimpleTrace(String surname, String gender, String dateOfBirth,
-									String ciaoASID, String pdsASID, String pdsURL,
-									String fromAddress) throws Exception {
+	private String senderASID;
+	private String receiverASID;
+	private String pdsURL;
+	private String fromAddress;
+	
+	public void setSenderASID(final String senderASID) {
+		this.senderASID = senderASID;
+	}
+	
+	public void setReceiverASID(final String receiverASID) {
+		this.receiverASID = receiverASID;
+	}
+	
+	public void setPdsURL(final String pdsURL) {
+		this.pdsURL = pdsURL;
+	}
+	
+	public void setFromAddress(final String fromAddress) {
+		this.fromAddress = fromAddress;
+	}
+	
+	public String buildSimpleTrace(final SimpleTrace simpleTrace) throws Exception {
+		final SpineSOAPBody body = createSOAPBody(simpleTrace, senderASID, receiverASID);
+		return buildSOAPRequest(senderASID, receiverASID, pdsURL, fromAddress, body);
+	}
+	
+	// TODO: Kept for backwards compatibility (for now)
+	public String buildSimpleTrace(final String surname, final String gender, final String dateOfBirth,
+			final String senderASID, final String receiverASID, final String pdsURL,
+			final String fromAddress) throws Exception {
 		
-		System.out.println(ciaoASID);
+		final SimpleTrace query = new SimpleTrace();
+		query.setSurname(surname);
+		query.setGender(gender);
+		query.setDateOfBirth(dateOfBirth);
 		
-		SpineSOAP template = new SpineSOAP();
+		final SpineSOAPBody body = createSOAPBody(query, senderASID, receiverASID);
+		return buildSOAPRequest(senderASID, receiverASID, pdsURL, fromAddress, body);
+	}
+	
+	// TODO: Replace existing calls to buildSimpleTrace + params with the SimpleTraceQuery method - the static methods can then use member variables
+	
+	private static String buildSOAPRequest(final String senderASID, final String receiverASID,
+			final String pdsURL, final String fromAddress, final SpineSOAPBody body) {
+		System.out.println(senderASID);
+		
+		final SpineSOAP template = createSpineSOAP(senderASID, receiverASID, pdsURL, fromAddress);
+		template.setPayload(body);
+		
+		return template.serialise();
+	}
+
+	private static SpineSOAP createSpineSOAP(final String senderASID, final String receiverASID,
+			final String pdsURL, final String fromAddress) {
+		final SpineSOAP template = new SpineSOAP();
 
 		template.setMessageID("uuid:"+CDAUUID.generateUUIDString());
 		template.setAction("urn:nhs:names:services:pdsquery/QUPA_IN000005UK01");
 		template.setTo(pdsURL);
 		template.setFrom(fromAddress);
-		template.setReceiverASID(pdsASID);
-		template.setSenderASID(ciaoASID);
+		template.setReceiverASID(receiverASID);
+		template.setSenderASID(senderASID);
 		template.setReplyAddress(fromAddress);
 		
-		SpineSOAPSimpleTraceBody body = new SpineSOAPSimpleTraceBody();
+		return template;
+	}
+
+	private static SpineSOAPBody createSOAPBody(final SimpleTrace query, final String senderASID, final String receiverASID) {
+		final SpineSOAPSimpleTraceBody body = new SpineSOAPSimpleTraceBody();
+		
 		// Transmission Wrapper Fields (Send Message Payload)
 		//body.setTransmissionID(messageUUID);
 		body.setTransmissionID(CDAUUID.generateUUIDString());
@@ -59,34 +111,28 @@ public class HL7PayloadBuilder {
 		body.setTransmissionInteractionID("QUPA_IN000005UK01");
 		body.setTransmissionProcessingCode(ProcessingID._Production);
 		body.setTransmissionProcessingModeCode(ProcessingMode._Currentprocessing);
-		body.setTransmissionReceiverASID(pdsASID);
-		body.setTransmissionSenderASID(ciaoASID);
+		body.setTransmissionReceiverASID(receiverASID);
+		body.setTransmissionSenderASID(senderASID);
 		
 		// Control Act Wrapper Fields
-		body.setControlActSenderASID(ciaoASID);
+		body.setControlActSenderASID(senderASID);
 		
 		// Actual Query Payload
 		//body.setGender(Sex._Female.code);
-		if (gender != null) {
-			body.setGender(gender);
-		}
+		body.setGender(query.getGenderCode());
 		
 		//body.setDateOfBirth(new DateValue("19661111"));
-		if (dateOfBirth != null) {
-			body.setDateOfBirth(new DateValue(dateOfBirth));
-		}
+		body.setDateOfBirth(query.getDateOfBirth());
 		
 		// Add provided parameters for query
-		if (surname != null) {
+		if (query.getSurname() != null) {
 			body.setName(new SMSPPersonName()
-								.setFamilyName(surname));
+								.setFamilyName(query.getSurname()));
 			body.setNameType(PersonNameType.Legal.code);
 		}
 		//body.setPostcode("LS11AB");
 		//body.setAddressUse(AddressType.Home.code);
-		
-		template.setPayload(body);
-		
-		return template.serialise();
+
+		return body;
 	}
 }
