@@ -121,6 +121,7 @@ public class PDSRoutes extends BaseRouteBuilder {
 		from(serviceFacadeUri)
 			.choice()
 				.when(body().isInstanceOf(SimpleTrace.class))
+				.to(simpleTraceUri)
 			.endChoice()
 			.otherwise()
 				.throwException(new PDSException("Unsupported request type"))
