@@ -1,0 +1,19 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nasp="http://national.carerecords.nhs.uk/schema/">
+	<soap:Body>
+		<soap:Fault>
+			<faultcode>soap:Client</faultcode>
+			<faultstring>The service/interaction is not supported for the requested URI</faultstring>
+			<detail>
+				<nasp:errorList>
+					<nasp:error>
+						<nasp:codeContext>urn:nhs:names:errors:tms</nasp:codeContext>
+						<nasp:errorCode>101</nasp:errorCode>
+						<nasp:severity>Error</nasp:severity>
+						<nasp:location>HTTP Header - SOAPAction</nasp:location>
+						<nasp:description>The service/interaction is not supported for the requested URI</nasp:description>
+					</nasp:error>
+				</nasp:errorList>
+			</detail>
+		</soap:Fault>
+	</soap:Body>
+</soap:Envelope>

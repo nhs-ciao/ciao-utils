@@ -2,6 +2,9 @@ package uk.nhs.ciao.spine.pds;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
+
+import joptsimple.internal.Strings;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -21,7 +24,10 @@ import uk.nhs.ciao.camel.CamelUtils;
 import uk.nhs.ciao.model.Patient;
 import uk.nhs.ciao.spine.pds.hl7.HL7PayloadBuilder;
 import uk.nhs.ciao.spine.pds.route.PDSRoutes;
+import uk.nhs.interoperability.payloads.DateValue;
 import uk.nhs.interoperability.payloads.util.Emptiables;
+import uk.nhs.interoperability.payloads.vocabularies.generated.Sex;
+import uk.nhs.interoperability.payloads.vocabularies.internal.DatePrecision;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Closeables;
@@ -97,6 +103,52 @@ public class PersonalDemographicsServiceTest {
 		pdsServer.assertIsSatisfied();
 		Assert.assertFalse(Emptiables.isNullOrEmpty(actual));		
 		assertPatientEquals(expected, actual);
+	}
+	
+	@Test
+	public void testNoMatch() throws Exception {
+		// Expectations
+		pdsServer.expectedMessageCount(1);
+		pdsServer.whenExchangeReceived(1, new Processor() {
+			@Override
+			public void process(final Exchange exchange) {
+				exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 200);
+				exchange.getOut().setBody(getClass().getResourceAsStream("NOMATCH.txt"));
+			}
+		});
+		
+		// Run the query
+		final Patient actual = pds.startSimpleTrace().forSurname("NOMATCH").getPatient();
+
+		// Assertions
+		pdsServer.assertIsSatisfied();
+		Assert.assertNull(actual);
+	}
+	
+	@Test
+	public void testSOAPFault() throws Exception {
+		// Expectations
+		pdsServer.expectedMessageCount(1);
+		pdsServer.whenExchangeReceived(1, new Processor() {
+			@Override
+			public void process(final Exchange exchange) {
+				exchange.getOut().setHeader(Exchange.HTTP_RESPONSE_CODE, 500);
+				exchange.getOut().setBody(getClass().getResourceAsStream("SOAPFAULT.txt"));
+			}
+		});
+		
+		// Run the query
+		try {
+			pds.startSimpleTrace()
+				.forSurname("SOAPFAULT")
+				.forGender(Sex._Male)
+				.forDateOfBirth(new DateValue(new Date(), DatePrecision.Days))
+				.getPatient();
+			Assert.fail("Expected PDSException");
+		} catch (PDSException e) {
+			pdsServer.assertIsSatisfied();
+			Assert.assertTrue(!Strings.isNullOrEmpty(e.getMessage()));
+		}
 	}
 	
 	private Patient loadPatientJson(final String name) throws IOException {
