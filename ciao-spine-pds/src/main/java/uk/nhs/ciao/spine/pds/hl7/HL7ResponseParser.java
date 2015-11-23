@@ -9,13 +9,13 @@ import uk.nhs.interoperability.payloads.spine.PDSPatientID;
 import uk.nhs.interoperability.payloads.spine.SpineResponseBody;
 import uk.nhs.interoperability.payloads.spine.SpineSOAPResponse;
 import uk.nhs.interoperability.payloads.spine.SpineSOAPSimpleTraceResponseBody;
+import uk.nhs.interoperability.payloads.util.Emptiables;
 import uk.nhs.interoperability.payloads.vocabularies.internal.AddressType;
 import uk.nhs.interoperability.payloads.vocabularies.internal.PersonNameType;
 import uk.nhs.interoperability.payloads.vocabularies.internal.TelecomUseType;
 
 public class HL7ResponseParser {
 	public static Patient parseSpineResponse(final String response) {
-		// TODO: Should we only return a patient instance if one could be populated?
 		Patient patient = new Patient();
 		// Parse the response using itk-payloads
 		SpineSOAPResponse template = new SpineSOAPResponse();
@@ -105,6 +105,6 @@ public class HL7ResponseParser {
 			// Local Identifier
 		}
 		
-		return patient;
+		return Emptiables.emptyToNull(patient);
 	}
 }

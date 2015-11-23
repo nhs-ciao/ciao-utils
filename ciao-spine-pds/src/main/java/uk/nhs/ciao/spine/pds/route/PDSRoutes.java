@@ -39,7 +39,6 @@ public class PDSRoutes extends BaseRouteBuilder {
 	private String pdsUri;
 	private String requestWiretapUri = "jms:ciao-pdsRequestAudit";
 	private String responseWiretapUri = "jms:ciao-pdsResponseAudit";
-	private String sslContextParametersRef = "spineSSLContextParameters";
 	private String simpleTraceUri = "direct:pdsSimpleTrace";
 	private String payloadBuilderRef = "payloadBuilder";
 		
@@ -81,14 +80,6 @@ public class PDSRoutes extends BaseRouteBuilder {
 	}
 	
 	/**
-	 * ID/ref for the {@link org.apache.camel.util.jsse.SSLContextParameters} to use
-	 * when connecting to Spine
-	 */
-	public void setSslContextParametersRef(final String sslContextParametersRef) {
-		this.sslContextParametersRef = sslContextParametersRef;
-	}
-	
-	/**
 	 * URI of the internal simple trace route
 	 */
 	public void setSimpleTraceUri(final String simpleTraceUri) {
@@ -113,7 +104,7 @@ public class PDSRoutes extends BaseRouteBuilder {
 	
 	private void addDefaultProperties() throws Exception {
 		if (Strings.isNullOrEmpty(pdsUri)) {
-			pdsUri = getContext().resolvePropertyPlaceholders("http4://{{PDSURL}}");
+			pdsUri = getContext().resolvePropertyPlaceholders("https://{{PDSURL}}");
 		}
 	}
 	
@@ -144,7 +135,9 @@ public class PDSRoutes extends BaseRouteBuilder {
     		.setHeader("SOAPaction", simple("urn:nhs:names:services:pdsquery/QUPA_IN000005UK01"))
     		// Send the message, using the configured security context (to
     		// handle the TLS MA connection
-    		.to(pdsUri+ "?sslContextParametersRef=" + sslContextParametersRef)
+    		.to(ExchangePattern.InOut, pdsUri + "?throwExceptionOnFailure=false")
+
+    		.convertBodyTo(String.class)
     		// Log the message that comes back from Spine
     		.wireTap(responseWiretapUri)
     		
@@ -166,11 +159,11 @@ public class PDSRoutes extends BaseRouteBuilder {
     		// Pass the query parameters into a java class to
     		// create the SOAP request content
 			.convertBodyTo(SimpleTrace.class)
-    		.beanRef(payloadBuilderRef, "buildSimpleTrace()")
+    		.beanRef(payloadBuilderRef, "buildSimpleTrace(${body})")
     		.to(ExchangePattern.InOut, requestSenderUri)
     	
     		// Convert the response to a Patient
-    		.bean(HL7ResponseParser.class, "parseSpineResponse()");
+    		.bean(HL7ResponseParser.class, "parseSpineResponse(${body})");
 	}
 	
 	/**
