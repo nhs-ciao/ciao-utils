@@ -1,0 +1,28 @@
+{
+  "nhsNumber" : "942111111111",
+  "name" : {
+    "familyName" : "PURVES",
+    "nameType" : "L",
+    "givenName" : [ "SADIA", "DANA" ],
+    "title" : "Ms"
+  },
+  "address" : [ {
+    "addressUse" : "H",
+    "postcode" : "LS1 4HY",
+    "addressLine" : [ "", "PRINCES EXCHANGE", "", "PRINCES SQUARE", "" ],
+    "addressKey" : "12345678"
+  } ],
+  "dateOfBirth" : "19661111",
+  "gender" : "2",
+  "telecom" : [ {
+    "telecom" : "tel:01132806007",
+    "telecomType" : "H"
+  }, {
+    "telecom" : "tel:07737758370",
+    "telecomType" : "MC"
+  }, {
+    "telecom" : "mailto:mayjune@months.co.uk",
+    "telecomType" : "H"
+  } ],
+  "practiceCode" : "Z99993"
+}

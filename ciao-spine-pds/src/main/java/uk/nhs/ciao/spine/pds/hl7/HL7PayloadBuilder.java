@@ -77,8 +77,6 @@ public class HL7PayloadBuilder {
 	
 	private static String buildSOAPRequest(final String senderASID, final String receiverASID,
 			final String pdsURL, final String fromAddress, final SpineSOAPBody body) {
-		System.out.println(senderASID);
-		
 		final SpineSOAP template = createSpineSOAP(senderASID, receiverASID, pdsURL, fromAddress);
 		template.setPayload(body);
 		
