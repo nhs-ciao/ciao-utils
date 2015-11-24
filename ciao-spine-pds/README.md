@@ -52,11 +52,11 @@ The following Spring XML configuration can be used to configure the Camel HTTP/H
 </bean>
 ```
 
-Another important `PDSRoutes` configuration properties is `PDSRoutes.setPayloadBuilderRef()`. This property refers to an instance of [HL7PayloadBuilder](src/main/java/uk/nhs/ciao/spine/pds/hl7/HL7PayloadBuilder.class) stored in the Camel registry. This instance should be configured with details of the approperiate sender/receiver ASIDs and addresses.
+Another important configuration property is `PDSRoutes.setPayloadBuilderRef()`. This property refers to an instance of [HL7PayloadBuilder](src/main/java/uk/nhs/ciao/spine/pds/hl7/HL7PayloadBuilder.class) stored in the Camel registry. It should be configured with details of the approperiate sender/receiver ASIDs and addresses.
 
 ## Querying SDS
 
-The `PersonalDemographicsService` class exposes a fluent builder for creating and executing queries.
+The `PersonalDemographicsService` class exposes a fluent builder for creating and executing queries. Internally it uses the `PDSRoutes` API, so a running Camel instance is required.
 
 ### Example Queries
 
