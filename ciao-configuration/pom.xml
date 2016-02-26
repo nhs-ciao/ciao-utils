@@ -3,7 +3,7 @@
   <groupId>uk.nhs.ciao</groupId>
   <artifactId>ciao-configuration</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1</version>
   <name>ciao-configuration</name>
   <description>Library for managing configuration of CIAO CIPs</description>
   <url>https://github.com/nhs-ciao/ciao-utils/tree/master/ciao-configuration</url>

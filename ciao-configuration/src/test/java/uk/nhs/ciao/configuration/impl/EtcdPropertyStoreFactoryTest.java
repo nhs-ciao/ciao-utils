@@ -132,7 +132,9 @@ public class EtcdPropertyStoreFactoryTest {
 	}
 	
 	@Before
-	public void setUp() {
+	public void setUp() throws IOException, EtcdException, TimeoutException {
+		etcdStore = null;
+		removeTestData();
 	}
 
 	/**
