@@ -15,16 +15,15 @@ package uk.nhs.ciao.configuration;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.nhs.ciao.configuration.impl.CipProperties;
 import uk.nhs.ciao.configuration.impl.EtcdPropertyStore;
 import uk.nhs.ciao.configuration.impl.FilePropertyStore;
-import uk.nhs.ciao.configuration.impl.CipProperties;
 import uk.nhs.ciao.exceptions.CIAOConfigurationException;
 
 /**
@@ -60,7 +59,7 @@ public class CIAOConfig implements CipProperties {
 	 * @param cipName Name of CIP
 	 * @param version Version number of CIP
 	 * @param defaultConfig Java properties object with default config values for CIP
-	 * @throws Exception 
+	 * @throws CIAOConfigurationException if there is any error initialising config
 	 */
 	public CIAOConfig(String args[], String cipName, String version, Properties defaultConfig) throws CIAOConfigurationException {
 		CommandLineParser.initialiseFromCLIArguments(this, args, cipName, version, defaultConfig);
@@ -74,7 +73,7 @@ public class CIAOConfig implements CipProperties {
 	 * @param version Version number of CIP
 	 * @param defaultConfig Java properties object with default config values for CIP
 	 * @param classifier An optional classifier to allow multiple versions of config to exist for different running CIPs
-	 * @throws CIAOConfigurationException
+	 * @throws CIAOConfigurationException if there is any error initialising config
 	 */
 	public CIAOConfig(String etcdURL, String configFilePath,
 			String cipName, String version, Properties defaultConfig, String classifier) throws CIAOConfigurationException {
@@ -89,7 +88,7 @@ public class CIAOConfig implements CipProperties {
 	 * @param cipName Name of CIP
 	 * @param version Version number of CIP
 	 * @param defaultConfig Java properties object with default config values for CIP
-	 * @throws CIAOConfigurationException 
+	 * @throws CIAOConfigurationException if there is any error initialising config
 	 */
 	public CIAOConfig(String etcdURL, String configFilePath,
 			String cipName, String version, Properties defaultConfig) throws CIAOConfigurationException {
@@ -98,8 +97,7 @@ public class CIAOConfig implements CipProperties {
 	
 	/**
 	 * Constructs a CIAOConfig instance backed by the specified property store
-	 * 
-	 * @param propertyStore The store which holds this configurations properties
+	 * @param cipProperties The store which holds this configurations properties
 	 */
 	public CIAOConfig(final CipProperties cipProperties) {
 		if (cipProperties == null) {
@@ -135,7 +133,7 @@ public class CIAOConfig implements CipProperties {
 	 * Method to retrieve the configuration value for a given key
 	 * @param key
 	 * @return value of configuration item
-	 * @throws Exception if the configuration path was not initialised correctly
+	 * @throws CIAOConfigurationException if the configuration path was not initialised correctly
 	 */
 	public String getConfigValue(String key) throws CIAOConfigurationException {
 		requireCipProperties();
@@ -155,7 +153,7 @@ public class CIAOConfig implements CipProperties {
 	/**
 	 * Returns a java properties object containing all configuration values
 	 * @return Java properties object
-	 * @throws Exception If unable to retrieve config values
+	 * @throws CIAOConfigurationException If unable to retrieve config values
 	 */
 	public Properties getAllProperties() throws CIAOConfigurationException {
 		requireCipProperties();
@@ -213,7 +211,7 @@ public class CIAOConfig implements CipProperties {
 	 * @param version Version number of CIP
 	 * @param defaultConfig Java properties object with default config values for CIP
 	 * @param classifier An optional classifier to allow multiple versions of config to exist for different running CIPs
-	 * @throws CIAOConfigurationException
+	 * @throws CIAOConfigurationException 
 	 */
 	protected void initialiseConfig(String etcdURL, String configFilePath,
 			String cipName, String version, Properties defaultConfig, String classifier, List<String> initialisedPaths) throws CIAOConfigurationException {

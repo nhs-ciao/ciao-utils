@@ -33,10 +33,9 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.nhs.ciao.configuration.CIAOConfig;
 import uk.nhs.ciao.configuration.impl.EtcdPropertyStoreFactoryTest;
-import uk.nhs.ciao.configuration.impl.FilePropertyStoreFactoryTest;
 
+@SuppressWarnings("javadoc")
 public class CIAOConfigTest {
 	
 	public static final String TEST_CLASSIFIER = "BLAH";
@@ -77,7 +76,7 @@ public class CIAOConfigTest {
 	public void testETCDMultipleAccesses() {
 		try {
 			logger.info("Initialising first config instance");
-			CIAOConfig config = new CIAOConfig(ETCDURL, null, CIPNAME, VERSION, defaultConfig);
+			new CIAOConfig(ETCDURL, null, CIPNAME, VERSION, defaultConfig);
 			// Now, lets create a second CIAOConfig to simulate a second client connecting - which should
 			// pick up the same values and not set new defaults.
 			logger.info("Initialising second config instance");
@@ -105,7 +104,7 @@ public class CIAOConfigTest {
 	@Test
 	public void testFileMultipleAccesses() {
 		try {
-			CIAOConfig config = new CIAOConfig(null, null, CIPNAME, VERSION, defaultConfig);
+			new CIAOConfig(null, null, CIPNAME, VERSION, defaultConfig);
 			// Now, lets create a second CIAOConfig to simulate a second client connecting - which should
 			// pick up the same values and not set new defaults.
 			CIAOConfig config2 = new CIAOConfig(null, null, CIPNAME, VERSION, null);

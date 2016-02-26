@@ -30,6 +30,10 @@ import org.slf4j.LoggerFactory;
 
 import uk.nhs.ciao.exceptions.CIAOConfigurationException;
 
+/**
+ * Implementation of the CIAO property store using ETCD as it's backing store
+ * @author Adam Hatherly
+ */
 public class EtcdPropertyStore implements PropertyStore {
 	
 	private static final String CIAO_PREFIX = "ciao";
@@ -39,6 +43,10 @@ public class EtcdPropertyStore implements PropertyStore {
 	
 	private static Logger logger = LoggerFactory.getLogger(EtcdPropertyStore.class);
 	
+	/**
+	 * Initialise the property store using ETCD
+	 * @param url etcd URL
+	 */
 	public EtcdPropertyStore(String url) {
 		this.url = url;
 	}

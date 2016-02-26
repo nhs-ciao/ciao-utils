@@ -28,8 +28,17 @@ import uk.nhs.ciao.exceptions.CIAOConfigurationException;
  */
 public class EnvironmentVariableInitialiser {
 	
+	/**
+	 * Key of environment variable for ETCD URL
+	 */
 	public static final String ETCD_URL_KEY="CIAO_ETCD_URL";
+	/**
+	 * Key of environment variable for config file path
+	 */
 	public static final String ETCD_CONFIG_KEY="CIAO_CONFIG_PATH";
+	/**
+	 * Key of environment variable for configuration classifier (to differentiate multiple sets of config for the same CIP)
+	 */
 	public static final String ETCD_CLASSIFIER_KEY="CIAO_CONFIG_CLASSIFIER";
 
 	/**

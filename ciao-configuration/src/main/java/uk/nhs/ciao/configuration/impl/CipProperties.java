@@ -13,7 +13,6 @@
 */
 package uk.nhs.ciao.configuration.impl;
 
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -38,11 +37,15 @@ import uk.nhs.ciao.exceptions.CIAOConfigurationException;
 public interface CipProperties {
 	/**
 	 * The name of the CIP these properties are associated with
+	 * @return The name of the CIP
+	 * @throws CIAOConfigurationException 
 	 */
 	String getCipName() throws CIAOConfigurationException;
 	
 	/**
 	 * The version of the CIP properties
+	 * @return The version number of the CIP
+	 * @throws CIAOConfigurationException 
 	 */
 	String getVersion() throws CIAOConfigurationException;
 	
@@ -50,7 +53,7 @@ public interface CipProperties {
 	 * Retrieve a configuration value for the provided key
 	 * @param key Key to identify config value
 	 * @return Value of configuration item
-	 * @throws Exception If unable to retrieve config value
+	 * @throws CIAOConfigurationException If unable to retrieve config value
 	 */
 	public String getConfigValue(String key) throws CIAOConfigurationException;
 	
@@ -65,14 +68,14 @@ public interface CipProperties {
 	/**
 	 * Returns the set of configuration keys associated with this store
 	 * @return A set of configuration keys
-	 * @throws Exception If unable to retrieve config keys
+	 * @throws CIAOConfigurationException If unable to retrieve config keys
 	 */
 	public Set<String> getConfigKeys() throws CIAOConfigurationException;
 	
 	/**
 	 * Returns a java properties object containing all configuration values
 	 * @return Java properties object
-	 * @throws Exception If unable to retrieve config values
+	 * @throws CIAOConfigurationException If unable to retrieve config values
 	 */
 	public Properties getAllProperties() throws CIAOConfigurationException;
 	

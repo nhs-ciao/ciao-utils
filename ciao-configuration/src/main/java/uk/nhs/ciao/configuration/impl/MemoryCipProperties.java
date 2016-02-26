@@ -23,22 +23,44 @@ public class MemoryCipProperties implements CipProperties {
 	private final String version;
 	private final Map<String, String> configValues;
 	
+	/**
+	 * Initialise an empty in-memory store
+	 * @param cipName CIP Name
+	 * @param version CIP version
+	 */
 	public MemoryCipProperties(final String cipName, final String version) {
 		this.cipName = cipName;
 		this.version = version;
 		this.configValues = new LinkedHashMap<String, String>();
 	}
 	
+	/**
+	 * Initialise an in-memory store as a copy of another property store
+	 * @param copy
+	 * @throws CIAOConfigurationException
+	 */
 	public MemoryCipProperties(final CipProperties copy) throws CIAOConfigurationException {
 		this(copy.getCipName(), copy.getVersion(), copy.getAllProperties());
 	}
 	
+	/**
+	 * Initialise an in-memory store with given property values
+	 * @param cipName CIP Name
+	 * @param version CIP Version
+	 * @param configValues Config values to initialise
+	 */
 	public MemoryCipProperties(final String cipName, final String version, final Properties configValues) {
 		this(cipName, version);
 		
 		addConfigValues(configValues);
 	}
 	
+	/**
+	 * Initialise an in-memory store with given property values
+	 * @param cipName CIP Name
+	 * @param version CIP Version
+	 * @param configValues Config values to initialise
+	 */
 	public MemoryCipProperties(final String cipName, final String version,
 			final Map<? extends String, ? extends String> configValues) {
 		this(cipName, version);
@@ -86,10 +108,19 @@ public class MemoryCipProperties implements CipProperties {
 		return configValues.toString();
 	}
 	
+	/**
+	 * Store a key/value in the store
+	 * @param key Key
+	 * @param value Value
+	 */
 	public void setConfigValue(final String key, final String value) {
 		configValues.put(key, value);
 	}
 	
+	/**
+	 * Add a set of config into the store
+	 * @param configValues config values to set
+	 */
 	public final void addConfigValues(final Properties configValues) {
 		if (configValues != null) {
 			for (final Enumeration<?> enumeration = configValues.propertyNames(); enumeration.hasMoreElements();) {
@@ -102,6 +133,10 @@ public class MemoryCipProperties implements CipProperties {
 		}
 	}
 	
+	/**
+	 * Add a set of config into the store
+	 * @param configValues config values to set
+	 */
 	public final void addConfigValues(final Map<? extends String, ? extends String> configValues) {
 		if (configValues != null) {
 			this.configValues.putAll(configValues);

@@ -35,10 +35,17 @@ public class FilePropertyStore implements PropertyStore {
 	
 	private String filePath = null;
 	
+	/**
+	 * @return Path of property file
+	 */
 	public String getPath() {
 		return filePath;
 	}
 	
+	/**
+	 * Initialise CIAO property store using config file as backing store
+	 * @param path Config file path
+	 */
 	public FilePropertyStore(String path) {
 		if (path != null) {
 			this.filePath = path;

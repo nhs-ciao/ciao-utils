@@ -19,6 +19,11 @@ import uk.nhs.ciao.exceptions.CIAOConfigurationException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
+/**
+ * This class handles the parsing of command line parameters for initialising config path or location.
+ * @author Adam Hatherly
+ *
+ */
 public class CommandLineParser {
 	private static String ETCDURLPARAM = "etcdURL";
 	private static String CONFIGPATHPARAM = "configPath";

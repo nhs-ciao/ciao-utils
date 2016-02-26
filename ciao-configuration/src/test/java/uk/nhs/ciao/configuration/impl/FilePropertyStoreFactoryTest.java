@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.nhs.ciao.configuration.impl.FilePropertyStore;
 
+@SuppressWarnings("javadoc")
 public class FilePropertyStoreFactoryTest {
 
 	private static final String CIPNAME = "ciao-configuration-test";

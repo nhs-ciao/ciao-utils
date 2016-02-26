@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.nhs.ciao.configuration.impl.EtcdPropertyStore;
 
+@SuppressWarnings("javadoc")
 public class EtcdPropertyStoreFactoryTest {
 
 	private static final String CIAO_PREFIX = "ciao";
@@ -110,6 +111,8 @@ public class EtcdPropertyStoreFactoryTest {
 		// And also set a test value in our child config
 		response = etcd.put(path.toString() + "/" + key, value).send().get();
 		logger.info("Set value {} in path {}", response.node.value, path.toString() + "/" + key);
+		
+		etcd.close();
 	}
 	
 	private EtcdPropertyStore etcdStore;
