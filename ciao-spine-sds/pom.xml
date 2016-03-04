@@ -3,18 +3,40 @@
   <parent>
 		<groupId>uk.nhs.ciao</groupId>
 		<artifactId>ciao-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>0.1</version>
   </parent>
   <artifactId>ciao-spine-sds</artifactId>
   
+  <url>https://github.com/nhs-ciao/ciao-utils</url>
+	<licenses>
+	    	<license>
+	    		<name>The Apache License, Version 2.0</name>
+	    		<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+	    	</license>
+	</licenses>
+  
   <properties>
-		<ciao.core.version>0.0.1-SNAPSHOT</ciao.core.version>
+		<ciao.core.version>0.1</ciao.core.version>
 		<ciao.skipBinArchive>false</ciao.skipBinArchive>
 		<ciao.addClasspath>true</ciao.addClasspath>
   </properties>
 
   <name>ciao-spine-sds</name>
   <description>Utility classes for accessing the Spine Directory Service - for use within CIAO CIPs</description>
+  
+  <developers>
+	    	<developer>
+	    		<name>Adam Hatherly</name>
+	    		<email>adam.hatherly@hscic.gov.uk</email>
+	    		<organization>Health and Social Care Information Centre</organization>
+	    		<organizationUrl>http://developer.nhs.uk</organizationUrl>
+	    	</developer>
+	</developers>
+	<scm>
+	    	<connection>scm:git:ssh://git@github.com:nhs-ciao/ciao-utils.git</connection>
+	    	<developerConnection>scm:git:ssh://git@github.com:nhs-ciao/ciao-utils.git</developerConnection>
+	    	<url>https://github.com/nhs-ciao/ciao-utils</url>
+	</scm>
   
   <dependencies>
   		<dependency>
@@ -82,4 +104,94 @@
 		</dependency>
 		</dependencies>
 	</dependencyManagement>
+	
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+    </distributionManagement>
+	<repositories>
+	  <!-- This repository lets us use snapshot builds (only release
+	  		builds are propagated to maven central) -->
+		<repository>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<id>oss</id>
+			<name>OSS Sonatype</name>
+			<url>https://oss.sonatype.org/content/groups/public/</url>
+		</repository>
+	</repositories>
+	
+	<profiles>
+  		<!-- Use this profile to push the library to maven central -->
+		<!-- Usage: mvn deploy -P mavencentral -->
+		<profile>
+			<id>mavencentral</id>
+			<build>
+				<plugins>
+		    		<plugin>
+				      <artifactId>maven-source-plugin</artifactId>
+				      <version>2.2.1</version>
+				      <executions>
+				        <execution>
+				          <id>attach-sources</id>
+				          <goals>
+				            <goal>jar-no-fork</goal>
+				          </goals>
+				        </execution>
+				      </executions>
+				    </plugin>
+				    <plugin>
+				      <artifactId>maven-javadoc-plugin</artifactId>
+				      <version>2.9.1</version>
+				      <executions>
+				        <execution>
+				          <id>attach-javadocs</id>
+				          <goals>
+				            <goal>jar</goal>
+				          </goals>
+				          <configuration>
+			                <additionalparam>-Xdoclint:none</additionalparam>
+			              </configuration>
+				        </execution>
+				      </executions>
+		    		</plugin>
+		    		<plugin>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.5</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+								<configuration>
+					              <keyname>HSCIC CIAO</keyname>
+					              <passphraseServerId>HSCIC CIAO</passphraseServerId>
+					            </configuration>
+							</execution>
+						</executions>
+					</plugin>
+		    		<plugin>
+				      <groupId>org.sonatype.plugins</groupId>
+				      <artifactId>nexus-staging-maven-plugin</artifactId>
+				      <version>1.6.3</version>
+				      <extensions>true</extensions>
+				      <configuration>
+				        <serverId>ossrh</serverId>
+				        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+				        <autoReleaseAfterClose>true</autoReleaseAfterClose>
+				      </configuration>
+				    </plugin>
+		    	</plugins>
+			</build>
+		</profile>
+  </profiles>
 </project>
