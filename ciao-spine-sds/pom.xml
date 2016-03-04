@@ -5,6 +5,9 @@
 		<artifactId>ciao-parent</artifactId>
 		<version>0.1</version>
   </parent>
+  
+  <name>ciao-spine-sds</name>
+  <description>Utility classes for accessing the Spine Directory Service - for use within CIAO CIPs</description>
   <artifactId>ciao-spine-sds</artifactId>
   
   <url>https://github.com/nhs-ciao/ciao-utils</url>
@@ -20,9 +23,6 @@
 		<ciao.skipBinArchive>false</ciao.skipBinArchive>
 		<ciao.addClasspath>true</ciao.addClasspath>
   </properties>
-
-  <name>ciao-spine-sds</name>
-  <description>Utility classes for accessing the Spine Directory Service - for use within CIAO CIPs</description>
   
   <developers>
 	    	<developer>
